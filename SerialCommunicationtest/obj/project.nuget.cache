@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "pLTeZOG83hg=",
+  "dgSpecHash": "L8H2qr+zavg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ZTIMohammadIOT\\source\\repos\\SerialCommunicationtest\\WinSerialCommunication.csproj",
+  "projectFilePath": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\WinSerialCommunication.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ZTIMohammadIOT\\.nuget\\packages\\runtime.linux-arm.runtime.native.system.io.ports\\8.0.0\\runtime.linux-arm.runtime.native.system.io.ports.8.0.0.nupkg.sha512",
     "C:\\Users\\ZTIMohammadIOT\\.nuget\\packages\\runtime.linux-arm64.runtime.native.system.io.ports\\8.0.0\\runtime.linux-arm64.runtime.native.system.io.ports.8.0.0.nupkg.sha512",

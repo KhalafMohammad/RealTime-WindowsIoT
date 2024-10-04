@@ -3,6 +3,7 @@
 //IT ENTRFACES WITH THE SERIAL PORTS ON THE COMPUTER AND READS DATA FROM THE SERIAL PORT FROM THE ESP32
 //THE DATA IS THEN DECODED AND PRINTED TO THE CONSOLE
 // [PROTOTYPE]
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO.Ports;
@@ -14,38 +15,23 @@ namespace WinSerialCommunication
     internal class Program
     {
 
-        private static SerialPort _serialport;
-        
+        //private static SerialPort _serialport;
+
+
         static void Main(string[] args)
         {
-            
-
-            // get a list of available ports
-            var ports = SerialPort.GetPortNames();
-
-            // display the list to the console
-            foreach (string port in ports)
-            {
-                Console.WriteLine(" {port}");
-            }
-
             // create a new SerialPort object with default settings and 1khz
-            _serialport = new SerialPort("COM5", 120000, Parity.None, 8, StopBits.One);
-
-            // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT
-            _serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-
-
-            // open serial port
-            _serialport.Open();
-            Console.WriteLine("connected to serial port " + _serialport.PortName);
+            Serial_Init Serial_Init = new Serial_Init();
+            // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
+            Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            Serial_Init.serial_init();
 
             // read from serial port [UNCOMMENT TO USE]
             //Read.Data_to_read(ref _serialport);
 
 
             //write to serial port [UNCOMMENT TO USE]
-            Write.Data_to_write(ref _serialport);
+            Write.Data_to_write(ref Serial_Init._serialport);
 
 
             Thread.Sleep(Timeout.Infinite);
@@ -53,7 +39,7 @@ namespace WinSerialCommunication
         // private static byte[] buffer = new byte[_serialport.BytesToRead];
         private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
-            
+
             SerialPort sp = (SerialPort)sender;
             //string indata = sp.ReadExisting();
             byte[] buffer = new byte[sp.BytesToRead];
@@ -61,14 +47,18 @@ namespace WinSerialCommunication
             sp.Read(buffer, 0, sp.BytesToRead);
             if (buffer.Length > 0)
             {
+                
                 var decode_string = Encoding.UTF8.GetString(buffer);
                 Console.WriteLine(Write.GetTimestamp() + " string Received:\n" + decode_string);
+                Write.recieve_flag = false;
+
             }
-            if (buffer.Length >= 8)
-            {
-                long decode_data = BitConverter.ToInt16(buffer, 0);
-                Console.WriteLine("Data Received:" + decode_data);
-            }
+
+            //if (buffer.Length >= 8)
+            //{
+            //    long decode_data = BitConverter.ToInt16(buffer, 0);
+            //    Console.WriteLine("Data Received:" + decode_data); // works but commented
+            //}
             //################################################################
             //                          read the 1st byte
             //################################################################
