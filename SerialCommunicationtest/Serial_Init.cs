@@ -29,6 +29,7 @@ namespace WinSerialCommunication
             // open serial port
             _serialport.Open();
             Console.WriteLine("connected to serial port " + _serialport.PortName);
+            //_serialport.ReadTimeout = 1000;
 
         }
     }

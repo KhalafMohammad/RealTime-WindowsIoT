@@ -47,11 +47,9 @@ namespace WinSerialCommunication
             sp.Read(buffer, 0, sp.BytesToRead);
             if (buffer.Length > 0)
             {
-                
                 var decode_string = Encoding.UTF8.GetString(buffer);
-                Console.WriteLine(Write.GetTimestamp() + " string Received:\n" + decode_string);
-                Write.recieve_flag = false;
-
+                Console.Write(temp_Write.GetTimestamp() + " string Received: >>> " + decode_string);
+                Write.recieve_flag = true;
             }
 
             //if (buffer.Length >= 8)
