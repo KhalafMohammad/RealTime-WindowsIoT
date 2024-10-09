@@ -14,10 +14,8 @@ namespace WinSerialCommunication
 {
     internal class Program
     {
-
-        //private static SerialPort _serialport;
-
-
+        public static int position; // Current stepper position
+        public static int prev_position; //previous
         static void Main(string[] args)
         {
             // create a new SerialPort object with default settings and 1khz
@@ -30,11 +28,15 @@ namespace WinSerialCommunication
             //Read.Data_to_read(ref _serialport);
 
 
-            //write to serial port [UNCOMMENT TO USE]
+            //write to serial port [UNCOMMENT TO USE]            
             Write.Data_to_write(ref Serial_Init._serialport);
 
+            //Scurve.Phase_one(1000);
+            //Scurve.Phase_two(1000);
+            //Scurve.Phase_three(1000);
 
-            Thread.Sleep(Timeout.Infinite);
+
+            //Thread.Sleep(Timeout.Infinite);
         }
         // private static byte[] buffer = new byte[_serialport.BytesToRead];
         private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
@@ -42,14 +44,24 @@ namespace WinSerialCommunication
 
             SerialPort sp = (SerialPort)sender;
             //string indata = sp.ReadExisting();
-            byte[] buffer = new byte[sp.BytesToRead];
-            //Console.WriteLine("Data Received:" + indata);
-            sp.Read(buffer, 0, sp.BytesToRead);
-            if (buffer.Length > 0)
+            try
             {
-                var decode_string = Encoding.UTF8.GetString(buffer);
-                Console.Write(temp_Write.GetTimestamp() + " string Received: >>> " + decode_string);
-                Write.recieve_flag = true;
+                byte[] buffer = new byte[sp.BytesToRead];
+                //Console.WriteLine("Data Received:" + indata);
+                sp.Read(buffer, 0, sp.BytesToRead);
+                if (buffer.Length > 0)
+                {
+                    var decode_string = Encoding.UTF8.GetString(buffer);
+                    position = Int16.Parse(decode_string);
+                    Console.Write(temp_Write.GetTimestamp() + " string Received: >>> " + decode_string);
+                    Console.WriteLine("previous position: " + prev_position + "current position: " + position);
+                    Write.recieve_flag = true;
+                }
+                prev_position = position; // update the previous position
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
             }
 
             //if (buffer.Length >= 8)
