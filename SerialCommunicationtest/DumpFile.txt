@@ -1,0 +1,104 @@
+﻿###########################################################################################
+# 1. Serial Communication
+# 2. Serial Port Communication
+# 3. file is een dump file van de code (usable)
+###########################################################################################
+
+private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;            
+            byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
+            sp.Read(buffer, 0, sp.BytesToRead); // read the data from the serial port
+
+            if (buffer.Length > 0) // check if the buffer has data
+            {
+                var decode_string = Encoding.UTF8.GetString(buffer);
+                position = Int32.Parse(decode_string);
+                Scurve.acc_max = (float)Int32.Parse(buffer);
+                Console.WriteLine(temp_Write.GetTimestamp() + " string Received: >>> " + decode_string);
+                Console.WriteLine("previous position: " + prev_position + " current position: " + position);
+            }
+            prev_position = position; // update the previous position
+
+
+            //################################################################
+            //                          read the 1st byte
+            //################################################################
+            //byte p = (byte)sp.ReadByte(); // read one byte
+            //if (p == 0x0A)
+            //{
+            //    Console.WriteLine("LED ON");
+            //}
+            //else { Console.WriteLine("LED OFF"); }
+            //Console.WriteLine("Data Received:" + p.ToString("X2"))
+            //if (buffer.Length > 0)
+            //{
+            //    foreach (byte b in buffer)
+            //    {
+            //        Console.WriteLine("Data buffer is: 0x" + b.ToString("X2"));
+            //    }
+            //}
+            //################################################################
+        }
+
+    ###########################################################################################
+
+
+     //################################################################################
+ //##  This is the code to write to the serial port. It is commented out because it is not needed in this example
+ //##  The code is left here for reference
+ //################################################################################
+
+ //byte[] value_bytes = new byte[2];
+ //value_bytes[0] = (byte)(0 >> 8); // shift 8 bits to the right
+ //value_bytes[1] = (byte)(0 & 0xFF); // bitwise AND with 0xFF
+
+ //sp.Write(value_bytes, 0, 2); // write 1
+ //Console.WriteLine(GetTimestamp() + " Wrote " + value + " over" + sp.PortName + ".");
+
+ //#####################################################################################################################
+
+
+
+
+  public static void Data_to_read(ref SerialPort sp)
+        {
+
+            sp.ReadTimeout = 1000; // set the read timeout to 1 second
+            while (true)
+            {
+                byte[] buffer = new byte[sp.BytesToRead];
+                sp.Read(buffer, 0,buffer.Length);
+
+                //byte p = (byte)sp.ReadByte(); // read one byte
+               // Console.WriteLine("Data Received:" + p.ToString("X2"));
+
+                //if (p == 0x0A) //
+                //{
+                //    Debug.WriteLine("LED ON"); 
+                //}
+                //else { Debug.WriteLine("LED OFF"); }
+
+                //if (buffer.Length >= 4) // check if the buffer is greater than 4 bytes 
+                //{
+                //    long decode_data = BitConverter.ToInt16(buffer, 0); // convert the buffer to integer
+                //    Console.WriteLine("Data Received:" + decode_data); 
+                //}else
+                 if (buffer.Length >= 8) // check if the buffer is greater than 8 bytes
+                {
+                    string decode_string = Encoding.ASCII.GetString(buffer); // convert the buffer to string
+                    Console.WriteLine("string Received:" + decode_string);
+                }
+                //else
+                //{ 
+                //    foreach (byte b in buffer) // loop through the buffer [old meythod :)]
+                //    {
+                //        Console.WriteLine("Data buffer is: 0x" + b.ToString("X2")); // print the buffer in hex
+                //    }
+
+                //}
+            }
+
+        }
+
+        ############################################################################################################

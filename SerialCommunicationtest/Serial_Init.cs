@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.IO.Ports;
 
 namespace WinSerialCommunication
@@ -21,11 +22,12 @@ namespace WinSerialCommunication
             {
                 Console.WriteLine($" {port}");
             }
-
+            //Thread readthread = new Thread(Read);
             // create a new SerialPort object with default settings and 1khz
 
             // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT
-
+            _serialport.WriteTimeout = 1000;
+            _serialport.ReadTimeout = 1000;
             // open serial port
             _serialport.Open();
             Console.WriteLine("connected to serial port " + _serialport.PortName);

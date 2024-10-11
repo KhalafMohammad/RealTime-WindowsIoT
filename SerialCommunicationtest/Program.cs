@@ -12,80 +12,77 @@ using System.Text;
 
 namespace WinSerialCommunication
 {
+
     internal class Program
     {
+        private static StringBuilder dataBuffer = new StringBuilder(); // create een nieuwe stringbuilder object
+
         public static int position; // Current stepper position
         public static int prev_position; //previous
-        static void Main(string[] args)
+        static void Main()
         {
             // create a new SerialPort object with default settings and 1khz
             Serial_Init Serial_Init = new Serial_Init();
+
             // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
-            Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler); 
             Serial_Init.serial_init();
 
             // read from serial port [UNCOMMENT TO USE]
-            //Read.Data_to_read(ref _serialport);
+            //Read.Data_to_read(ref Serial_Init._serialport);
 
 
             //write to serial port [UNCOMMENT TO USE]            
             Write.Data_to_write(ref Serial_Init._serialport);
 
-            //Scurve.Phase_one(1000);
-            //Scurve.Phase_two(1000);
-            //Scurve.Phase_three(1000);
 
-
-            //Thread.Sleep(Timeout.Infinite);
+           
+            Thread.Sleep(Timeout.Infinite);
         }
-        // private static byte[] buffer = new byte[_serialport.BytesToRead];
         private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
+            
+                SerialPort sp = (SerialPort)sender;
+                byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
+                sp.Read(buffer, 0, sp.BytesToRead); // read the data from the serial port
 
-            SerialPort sp = (SerialPort)sender;
-            //string indata = sp.ReadExisting();
-            try
-            {
-                byte[] buffer = new byte[sp.BytesToRead];
-                //Console.WriteLine("Data Received:" + indata);
-                sp.Read(buffer, 0, sp.BytesToRead);
-                if (buffer.Length > 0)
+                if (buffer.Length > 0) // check if the buffer has data
                 {
-                    var decode_string = Encoding.UTF8.GetString(buffer);
-                    position = Int16.Parse(decode_string);
-                    Console.Write(temp_Write.GetTimestamp() + " string Received: >>> " + decode_string);
-                    Console.WriteLine("previous position: " + prev_position + "current position: " + position);
-                    Write.recieve_flag = true;
+
+                    dataBuffer.Append(Encoding.UTF8.GetString(buffer));
+
+                    // Process de data in de buffer
+                    ProcessData();
                 }
                 prev_position = position; // update the previous position
-            }
-            catch (Exception ex)
+        }
+
+        private static void ProcessData()
+        {
+            string data = dataBuffer.ToString(); // get the data from the buffer
+            string[] dataParts = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries); // get data for the recieve buffer and split it into parts
+
+            foreach (string part in dataParts) // loop door de data parts
             {
-                Console.WriteLine("Error: " + ex.Message);
+                if (int.TryParse(part, out int result)) //  CHECK als de data een integer is
+                {
+                    position = result; // update de positie
+                    Scurve.positie = position;
+                    Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);
+                    //if (result == 3200)
+                    //{
+                    //    Console.WriteLine("I GOT 3200 I GOT 3200 I GOT 3200 I GOT 3200 I GOT 3200 ");
+                    //}
+                    //Write.recieve_flag = true;
+                }
+                else
+                {
+                    // Console.WriteLine("Invalid data received: " + part);
+                }
             }
 
-            //if (buffer.Length >= 8)
-            //{
-            //    long decode_data = BitConverter.ToInt16(buffer, 0);
-            //    Console.WriteLine("Data Received:" + decode_data); // works but commented
-            //}
-            //################################################################
-            //                          read the 1st byte
-            //################################################################
-            //byte p = (byte)sp.ReadByte(); // read one byte
-            //if (p == 0x0A)
-            //{
-            //    Console.WriteLine("LED ON");
-            //}
-            //else { Console.WriteLine("LED OFF"); }
-            //Console.WriteLine("Data Received:" + p.ToString("X2"))
-            //if (buffer.Length > 0)
-            //{
-            //    foreach (byte b in buffer)
-            //    {
-            //        Console.WriteLine("Data buffer is: 0x" + b.ToString("X2"));
-            //    }
-            //}
+            // Clear the buffer after processing
+            dataBuffer.Clear();
         }
     }
 }
