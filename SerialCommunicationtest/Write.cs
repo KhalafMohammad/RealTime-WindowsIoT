@@ -24,7 +24,9 @@ namespace WinSerialCommunication
 
             while (true)
             {
-                Console.WriteLine("Enter steps?");
+                //Console.Write("Enter Target position? >>>");
+                //Scurve.target = Convert.ToInt32(Console.ReadLine());
+                Console.Write("\nEnter snelheid to target? >>>");
                 int value = Convert.ToInt32(Console.ReadLine());
                 if (value == 2)
                 {
@@ -32,9 +34,12 @@ namespace WinSerialCommunication
                 }
                 else
                 {
-                    Scurve.Phase_one(ref sp, value);
-                    Scurve.Phase_two(ref sp, value);
-                    Scurve.Phase_three(ref sp, value);
+                    
+                    //Scurve.Phase_one(ref sp, value);
+                    //Scurve.Phase_two(ref sp, value);
+                    //Scurve.Phase_three(ref sp, value);
+
+                    Write.data(ref sp, value);
                 }
             }
         }

@@ -21,40 +21,48 @@ namespace WinSerialCommunication
         public static int prev_position; //previous
         static void Main()
         {
-            // create a new SerialPort object with default settings and 1khz
-            Serial_Init Serial_Init = new Serial_Init();
+            try
+            {
+                // create a new SerialPort object with default settings and 1khz
+                Serial_Init Serial_Init = new Serial_Init();
 
-            // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
-            Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler); 
-            Serial_Init.serial_init();
+                // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
+                Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                Serial_Init.serial_init();
 
-            // read from serial port [UNCOMMENT TO USE]
-            //Read.Data_to_read(ref Serial_Init._serialport);
-
-
-            //write to serial port [UNCOMMENT TO USE]            
-            Write.Data_to_write(ref Serial_Init._serialport);
+                // read from serial port [UNCOMMENT TO USE]
+                //Read.Data_to_read(ref Serial_Init._serialport);
 
 
-           
-            Thread.Sleep(Timeout.Infinite);
+                //write to serial port [UNCOMMENT TO USE]            
+                Write.Data_to_write(ref Serial_Init._serialport);
+
+
+                Write.data(ref Serial_Init._serialport, 0);
+                Serial_Init._serialport.Close(); // close the serial port
+                Thread.Sleep(Timeout.Infinite);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
         private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
-            
-                SerialPort sp = (SerialPort)sender;
-                byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
-                sp.Read(buffer, 0, sp.BytesToRead); // read the data from the serial port
 
-                if (buffer.Length > 0) // check if the buffer has data
-                {
+            SerialPort sp = (SerialPort)sender;
+            byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
+            sp.Read(buffer, 0, sp.BytesToRead); // read the data from the serial port
 
-                    dataBuffer.Append(Encoding.UTF8.GetString(buffer));
+            if (buffer.Length > 0) // check if the buffer has data
+            {
 
-                    // Process de data in de buffer
-                    ProcessData();
-                }
-                prev_position = position; // update the previous position
+                dataBuffer.Append(Encoding.UTF8.GetString(buffer));
+
+                // Process de data in de buffer
+                ProcessData();
+            }
+            prev_position = position; // update the previous position
         }
 
         private static void ProcessData()
@@ -69,18 +77,10 @@ namespace WinSerialCommunication
                     position = result; // update de positie
                     Scurve.positie = position;
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);
-                    //if (result == 3200)
-                    //{
-                    //    Console.WriteLine("I GOT 3200 I GOT 3200 I GOT 3200 I GOT 3200 I GOT 3200 ");
-                    //}
-                    //Write.recieve_flag = true;
-                }
-                else
-                {
-                    // Console.WriteLine("Invalid data received: " + part);
-                }
-            }
 
+                }
+
+            }
             // Clear the buffer after processing
             dataBuffer.Clear();
         }
