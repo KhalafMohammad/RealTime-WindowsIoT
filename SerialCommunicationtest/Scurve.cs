@@ -22,95 +22,124 @@ namespace WinSerialCommunication
         public static float acc_max = 2000;
         public static float j_max = 1.5F;
         public static float t_j = 0.5F;
-        public static float dt = 0.001F;
-        public static int target; // target position
+        public static float dt = 0.01F;
+        public static int target = 1000; // target position
         public static int positie; // incoming position from the serial port
-        public static int first_portion = (int)Math.Round((decimal)(target / 3)); // 1/3rd of the target
+        public static int first_portion; // 1/3rd of the target
         public static int second_portion = first_portion * 2; // 2/3rds of the target
+        public static bool flag = true;
+
 
         public static void Phase_one(ref SerialPort sp, int accelertion)
         {
-            max_freq = accelertion;
-            //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //t_j = (float)((33.3 * j_max) / 100);
+            var watch = new System.Diagnostics.Stopwatch();
 
-            for (float t = 0.001F; t < t_j; t += dt)
-            {
-                // t_j = (float)((33.3 * j_max) / 100);
-                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2))); // S-curve formula
-                //byte[] value_bytes = new byte[2];
-                //value_bytes[0] = (byte)((int)curr_freq >> 8); // shift 8 bits to the right
-                //value_bytes[1] = (byte)((int)curr_freq & 0xFF); // bitwise AND with 0xFF
-
-                //sp.Write(value_bytes, 0, 2); // write 1
-                //Console.WriteLine(Write.GetTimestamp() + " Wrote " + curr_freq + " over" + sp.PortName + ".");
-                Write.data(ref sp, (int)curr_freq);
-                Write.data(ref sp, (int)1);
-                if (positie == first_portion)
-                {
-                    break;
-                }
-            }
-            Console.WriteLine("Max Frequency: " + curr_freq);
-        }
-        public static void Phase_two(ref SerialPort sp, int accelertion)
-        {
-
-            max_freq = accelertion;
+            //max_freq = accelertion;
+            max_freq = (int)Math.Round((double)accelertion / 3);
             //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
             //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
             //t_j = (float)((33.3 * j_max) / 100);
             //int target = (j_max/2) * accelertion;
+            first_portion = (int)Math.Round((double)target / 3);
+            Console.WriteLine("Max Frequency: " + max_freq);
+            Console.WriteLine("target: " + target);
+            Console.WriteLine("First Portion: " + first_portion);
+            Console.WriteLine("Second Portion: " + second_portion);
+
+            for (float t = 0.001F; t < t_j; t += dt)
+            {
+                watch.Restart();
+
+                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2))); // S-curve formula
+                Write.data(ref sp, (int)curr_freq);
+                watch.Stop();
+                //if (flag == false)
+                //{
+                //    break;
+                //}
+                int elapsed = (int)watch. ElapsedMilliseconds;
+                float elapsed_f = (float)watch.ElapsedMilliseconds;
+                Console.WriteLine("Time elapsed: " + elapsed_f);
+                if (elapsed < 1)
+                {
+                    Thread.Sleep(1 - elapsed);
+                }
+            }
+            watch.Stop();
+            Console.WriteLine("Time elapsed: " + watch.ElapsedMilliseconds);
+            flag = true;
+            Console.WriteLine("Max Frequency: " + curr_freq);
+        }
+        public static void Phase_two(ref SerialPort sp, int accelertion)
+        {
+            var watch = new System.Diagnostics.Stopwatch();
+
+            max_freq = accelertion;
+
+            //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
+            //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
+            //t_j = (float)((33.3 * j_max) / 100);
+            //int target = (j_max/2) * accelertion;
+            first_portion = (int)Math.Round((double)target / 3);
+            second_portion = first_portion * 2;
+
 
             for (float t = t_j; t < (j_max - t_j); t += dt)
             {
-
+                watch.Restart();
                 curr_freq = max_freq;
-                //Console.WriteLine("wTime: " + t + " Frequency: " + curr_freq);
-                //byte[] value_bytes = new byte[2];
-                //value_bytes[0] = (byte)((int)curr_freq >> 8); // shift 8 bits to the right
-                //value_bytes[1] = (byte)((int)curr_freq & 0xFF); // bitwise AND with 0xFF
-                //sp.Write(value_bytes, 0, 2); // write 1
+
 
                 Write.data(ref sp, (int)curr_freq);
-                Write.data(ref sp, (int)1);
-                if (positie == second_portion)
+                Console.WriteLine(second_portion);
+                watch.Stop();
+                //if (flag == false)
+                //{
+                //    break;
+                //}
+                int elapsed = (int)watch.ElapsedMilliseconds;
+                float elapsed_f = (float)watch.ElapsedMilliseconds;
+                Console.WriteLine("Time elapsed: " + elapsed_f);
+                if (elapsed < 1)
                 {
-                    break;
+                    Thread.Sleep(1 - elapsed);
                 }
             }
+            flag = true;
             Console.WriteLine("Max Frequency: " + curr_freq);
         }
 
         //note to self: impliment feeback posistion here 
         public static void Phase_three(ref SerialPort sp, int accelertion)
         {
-            max_freq = accelertion;
+            var watch = new System.Diagnostics.Stopwatch();
+
+            //max_freq = accelertion;
+            max_freq = (int)Math.Round((double)accelertion / 3);
             //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
             //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
             //t_j = (float)((33.3 * j_max) / 100);
-            for (float t = t_j; t > 0.001F; t -= dt)
+            for (float t = t_j; t > 0.01F; t -= dt)
             {
-                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2)));
-                //Console.WriteLine("ETime: " + t + " Frequency: " + curr_freq);
-                //byte[] value_bytes = new byte[2];
-                //value_bytes[0] = (byte)((int)curr_freq >> 8); // shift 8 bits to the right
-                //value_bytes[1] = (byte)((int)curr_freq & 0xFF); // bitwise AND with 0xFF
-                //sp.Write(value_bytes, 0, 2); // write 1
-                //Console.WriteLine(Write.GetTimestamp() + " Wrote " + curr_freq + " over" + sp.PortName + ".");
-                Write.data(ref sp, (int)curr_freq);
-                Write.data(ref sp, (int)1);
-                if (positie == target)
-                {
-                    Write.data(ref sp, (int)0);
-                    break;
-                }
+                watch.Restart();
 
+                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2)));
+
+                Write.data(ref sp, (int)curr_freq);
+                watch.Stop();
+                //if (flag == false)
+                //{
+                //    break;
+                //}
+                int elapsed = (int)watch.ElapsedMilliseconds;
+                if (elapsed < 1)
+                {
+                    Thread.Sleep(1 - elapsed);
+                }
             }
-            //Read.Data_to_read(ref sp);
             int final_freq = 0;
             Write.data(ref sp, final_freq);
+            flag = true;
             Console.WriteLine("Max Frequency: " + max_freq);
         }
 

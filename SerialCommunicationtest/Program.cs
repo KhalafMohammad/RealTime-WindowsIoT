@@ -52,8 +52,7 @@ namespace WinSerialCommunication
 
             SerialPort sp = (SerialPort)sender;
             byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
-            sp.Read(buffer, 0, sp.BytesToRead); // read the data from the serial port
-
+            sp.Read(buffer, 0, buffer.Length); // read the data from the serial port
             if (buffer.Length > 0) // check if the buffer has data
             {
 
@@ -75,9 +74,9 @@ namespace WinSerialCommunication
                 if (int.TryParse(part, out int result)) //  CHECK als de data een integer is
                 {
                     position = result; // update de positie
-                    Scurve.positie = position;
+                    Scurve.positie = result;
+                    
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);
-
                 }
 
             }
