@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\WinSerialCommunication.csproj": {}
+    "D:\\WinSerialCommunication-main\\WinSerialCommunication-main\\SerialCommunicationtest\\WinSerialCommunication.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\WinSerialCommunication.csproj": {
+    "D:\\WinSerialCommunication-main\\WinSerialCommunication-main\\SerialCommunicationtest\\WinSerialCommunication.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\WinSerialCommunication.csproj",
+        "projectUniqueName": "D:\\WinSerialCommunication-main\\WinSerialCommunication-main\\SerialCommunicationtest\\WinSerialCommunication.csproj",
         "projectName": "WinSerialCommunication",
-        "projectPath": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\WinSerialCommunication.csproj",
+        "projectPath": "D:\\WinSerialCommunication-main\\WinSerialCommunication-main\\SerialCommunicationtest\\WinSerialCommunication.csproj",
         "packagesPath": "C:\\Users\\ZTIMohammadIOT\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\obj\\",
+        "outputPath": "D:\\WinSerialCommunication-main\\WinSerialCommunication-main\\SerialCommunicationtest\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

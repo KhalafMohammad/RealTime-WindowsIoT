@@ -23,6 +23,15 @@ namespace WinSerialCommunication
         {
             try
             {
+                Process process = Process.GetCurrentProcess();
+                process.ProcessorAffinity = 0xF0; // use only the first processor
+                process.PriorityClass = ProcessPriorityClass.RealTime;
+                Console.WriteLine("Processor affinity: " + process.ProcessorAffinity);
+                for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
+                {
+                    process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
+                }
+
                 // create a new SerialPort object with default settings and 1khz
                 Serial_Init Serial_Init = new Serial_Init();
 
@@ -59,12 +68,12 @@ namespace WinSerialCommunication
                 dataBuffer.Append(Encoding.UTF8.GetString(buffer));
 
                 // Process de data in de buffer
-                ProcessData();
+                ProcessData(ref sp);
             }
             prev_position = position; // update the previous position
         }
 
-        private static void ProcessData()
+        private static void ProcessData(ref SerialPort sp)
         {
             string data = dataBuffer.ToString(); // get the data from the buffer
             string[] dataParts = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries); // get data for the recieve buffer and split it into parts
@@ -75,6 +84,11 @@ namespace WinSerialCommunication
                 {
                     position = result; // update de positie
                     Scurve.positie = result;
+                    int value_abs = Math.Abs(Write.value);
+                    if (result >= value_abs || result > value_abs - 5 && result < value_abs + 5) //  || result > value_abs - 5 && result < value_abs + 5
+                    {
+                        Scurve.flag = false;
+                    }
                     
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);
                 }
@@ -83,5 +97,6 @@ namespace WinSerialCommunication
             // Clear the buffer after processing
             dataBuffer.Clear();
         }
+
     }
 }

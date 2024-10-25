@@ -4,6 +4,7 @@
 // divided into three phases: acceleration, constant speed, and deceleration.
 // implemented using the following formula:
 // curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2)));
+// the speed is the same as the the target steps e.g 3200 maximum speed is 3200
 
 
 using Microsoft.VisualBasic;
@@ -28,120 +29,161 @@ namespace WinSerialCommunication
         public static int first_portion; // 1/3rd of the target
         public static int second_portion = first_portion * 2; // 2/3rds of the target
         public static bool flag = true;
+        public static int dir;
+        const double targetPeriodMs = 1.0;
 
 
         public static void Phase_one(ref SerialPort sp, int accelertion)
         {
-            var watch = new System.Diagnostics.Stopwatch();
 
-            //max_freq = accelertion;
-            max_freq = (int)Math.Round((double)accelertion / 3);
-            //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //t_j = (float)((33.3 * j_max) / 100);
-            //int target = (j_max/2) * accelertion;
+            int acc_b = Math.Abs(accelertion); // absolute value of the acceleration
+
+            if (accelertion < 0) // ditermin the direction of the motor
+            {
+                dir = -1;
+            }
+            else
+            {
+                dir = 1;
+            }
+
+            var watch = new System.Diagnostics.Stopwatch(); // start stopwatch
+
+            max_freq = (int)Math.Round((double)acc_b / 3);
             first_portion = (int)Math.Round((double)target / 3);
-            Console.WriteLine("Max Frequency: " + max_freq);
-            Console.WriteLine("target: " + target);
-            Console.WriteLine("First Portion: " + first_portion);
-            Console.WriteLine("Second Portion: " + second_portion);
 
-            for (float t = 0.001F; t < t_j; t += dt)
+
+            for (float t = 0; t < 0.45; t += dt)
             {
                 watch.Restart();
+                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / 0.5), 2))); // S-curve formula
+                if (dir == -1)
+                {
+                    curr_freq = -curr_freq;
+                    Write.data(ref sp, (int)curr_freq);
+                }
+                else
+                {
+                    Write.data(ref sp, (int)curr_freq);
+                }
 
-                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2))); // S-curve formula
-                Write.data(ref sp, (int)curr_freq);
                 watch.Stop();
-                //if (flag == false)
-                //{
-                //    break;
-                //}
-                int elapsed = (int)watch. ElapsedMilliseconds;
-                float elapsed_f = (float)watch.ElapsedMilliseconds;
-                Console.WriteLine("Time elapsed: " + elapsed_f);
+                int elapsed = (int)watch.ElapsedMilliseconds;
                 if (elapsed < 1)
                 {
                     Thread.Sleep(1 - elapsed);
                 }
             }
             watch.Stop();
-            Console.WriteLine("Time elapsed: " + watch.ElapsedMilliseconds);
             flag = true;
-            Console.WriteLine("Max Frequency: " + curr_freq);
+            Phase_two(ref sp, accelertion); // call the next phase (Phase_two)
         }
         public static void Phase_two(ref SerialPort sp, int accelertion)
         {
             var watch = new System.Diagnostics.Stopwatch();
 
-            max_freq = accelertion;
 
-            //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //t_j = (float)((33.3 * j_max) / 100);
-            //int target = (j_max/2) * accelertion;
-            first_portion = (int)Math.Round((double)target / 3);
-            second_portion = first_portion * 2;
+            int acc_b = Math.Abs(accelertion); // absolute value of the acceleration
 
-
-            for (float t = t_j; t < (j_max - t_j); t += dt)
+            if (accelertion < 0)
+            {
+                dir = -1;
+            }
+            else
+            {
+                dir = 1;
+            }
+            // cheange this to 0.45 or 0.5
+            for (float t = 0.5F; t < (j_max - 0.5F); t += dt)
             {
                 watch.Restart();
-                curr_freq = max_freq;
+                if (flag == false)
+                {
+                    break;
+                }
+                curr_freq = acc_b;
+
+                if (dir == -1)
+                {
+                    curr_freq = -curr_freq;
+                    Write.data(ref sp, (int)curr_freq);
+                }
+                else
+                {
+                    Write.data(ref sp, (int)curr_freq);
+                }
+                
 
 
-                Write.data(ref sp, (int)curr_freq);
-                Console.WriteLine(second_portion);
                 watch.Stop();
-                //if (flag == false)
-                //{
-                //    break;
-                //}
+
                 int elapsed = (int)watch.ElapsedMilliseconds;
-                float elapsed_f = (float)watch.ElapsedMilliseconds;
-                Console.WriteLine("Time elapsed: " + elapsed_f);
                 if (elapsed < 1)
                 {
                     Thread.Sleep(1 - elapsed);
                 }
             }
-            flag = true;
-            Console.WriteLine("Max Frequency: " + curr_freq);
+            Phase_three(ref sp, accelertion);
         }
 
-        //note to self: impliment feeback posistion here 
         public static void Phase_three(ref SerialPort sp, int accelertion)
         {
             var watch = new System.Diagnostics.Stopwatch();
+            int acc_b = Math.Abs(accelertion); // absolute value of the acceleration
 
-            //max_freq = accelertion;
-            max_freq = (int)Math.Round((double)accelertion / 3);
-            //j_max = acc_max / accelertion; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //j_max = accelertion / acc_max; ; //acceleration = snelheid/tijd ##  tijd = snelheid/acceleratie
-            //t_j = (float)((33.3 * j_max) / 100);
-            for (float t = t_j; t > 0.01F; t -= dt)
+            if (accelertion < 0)
+            {
+                dir = -1;
+            }
+            else
+            {
+                dir = 1;
+            }
+
+            max_freq = (int)Math.Round((double)acc_b / 3);
+
+
+            for (float t = t_j; t > 0; t -= dt)
             {
                 watch.Restart();
+                if (flag == false)
+                {
+                    Write.data(ref sp, 0);
+                    break;
+                }
+                //else
+                //{
+                //    t_j += 0.05F;
+
+                //}
 
                 curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2)));
-
-                Write.data(ref sp, (int)curr_freq);
+                if (dir == -1)
+                {
+                    curr_freq = -curr_freq;
+                    Write.data(ref sp, (int)curr_freq);
+                }
+                else
+                {
+                    Write.data(ref sp, (int)curr_freq);
+                }
+                
                 watch.Stop();
-                //if (flag == false)
-                //{
-                //    break;
-                //}
                 int elapsed = (int)watch.ElapsedMilliseconds;
                 if (elapsed < 1)
                 {
                     Thread.Sleep(1 - elapsed);
                 }
+
             }
+            if(flag == false)
+            {
+                Write.data(ref sp, 0);
+            }
+
             int final_freq = 0;
             Write.data(ref sp, final_freq);
             flag = true;
-            Console.WriteLine("Max Frequency: " + max_freq);
         }
-
     }
 }
