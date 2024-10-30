@@ -30,6 +30,7 @@ namespace WinSerialCommunication
                 for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
                 {
                     process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
+                    Console.WriteLine("Thread ID: " + process.Threads[i].Id + " Priority: " + process.Threads[i].PriorityLevel);
                 }
 
                 // create a new SerialPort object with default settings and 1khz
@@ -42,10 +43,15 @@ namespace WinSerialCommunication
                 // read from serial port [UNCOMMENT TO USE]
                 //Read.Data_to_read(ref Serial_Init._serialport);
 
-
                 //write to serial port [UNCOMMENT TO USE]            
-                Write.Data_to_write(ref Serial_Init._serialport);
+                //Write.Data_to_write(ref Serial_Init._serialport);
 
+                Thread newThread = new Thread(() =>
+                {
+                    Newclass newclass = new Newclass();
+                    newclass.Exicute();
+                });
+                newThread.Start();
 
                 Write.data(ref Serial_Init._serialport, 0);
                 Serial_Init._serialport.Close(); // close the serial port
@@ -88,8 +94,10 @@ namespace WinSerialCommunication
                     if (result >= value_abs || result > value_abs - 5 && result < value_abs + 5) //  || result > value_abs - 5 && result < value_abs + 5
                     {
                         Scurve.flag = false;
+                        NewScurve.flag = false;
+                        Scurve2.flag = false;
                     }
-                    
+
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);
                 }
 

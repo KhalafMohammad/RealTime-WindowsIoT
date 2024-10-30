@@ -19,6 +19,9 @@ namespace WinSerialCommunication
     {
         public static bool recieve_flag = true;
         public static int value;
+        public static int position;
+        public static double full_rotation = 3200;
+        public static double step_rotation;
         public static void Data_to_write(ref SerialPort sp)
         {
             sp.WriteTimeout = 1000;
@@ -31,6 +34,8 @@ namespace WinSerialCommunication
                 Console.Write("\nVoer in de steppen? >>>"); // any value is going to be the mount of pulses per second.
 
                 value = Convert.ToInt32(Console.ReadLine());
+
+                
                 if (value == 2)
                 {
                     Console.Clear();
@@ -38,9 +43,10 @@ namespace WinSerialCommunication
                 else
                 {
 
-                    Scurve.Phase_one(ref sp, value);
+                    Scurve.Phase_one(ref sp, (int)value);
                     //Scurve.Phase_two(ref sp, value);
                     //Scurve.Phase_three(ref sp, value);
+                    //NewScurve.Sigmoid_curve(ref sp);
 
                 }
 
