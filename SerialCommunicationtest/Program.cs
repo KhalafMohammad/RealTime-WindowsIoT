@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO.Ports;
 using System.Text;
+using System.Xml;
 
 
 namespace WinSerialCommunication
@@ -46,12 +47,16 @@ namespace WinSerialCommunication
                 //write to serial port [UNCOMMENT TO USE]            
                 //Write.Data_to_write(ref Serial_Init._serialport);
 
-                Thread newThread = new Thread(() =>
-                {
-                    Newclass newclass = new Newclass();
-                    newclass.Exicute();
-                });
-                newThread.Start();
+                //Thread newThread = new Thread(() =>
+                //{
+                //    Newclass newclass = new Newclass();
+                //    newclass.Exicute();
+                //});
+                //newThread.Start();
+
+
+                TwoAxisRobot twoAxisRobot = new TwoAxisRobot(0.5,1.00,0.5);
+                Console.WriteLine(twoAxisRobot.CalculateInverseKinematics(1, 1));
 
                 Write.data(ref Serial_Init._serialport, 0);
                 Serial_Init._serialport.Close(); // close the serial port
@@ -60,6 +65,11 @@ namespace WinSerialCommunication
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Press any key to exit...");
+                Console.ReadKey();
             }
         }
         private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)

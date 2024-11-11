@@ -45,7 +45,7 @@ namespace WinSerialCommunication
 
             var stopwatch = new Stopwatch();
 
-            const double targetPeriodMs = 2.0;
+            const double targetPeriodMs = 1.0;
             double targetPeriodnt = 1000.0 / frequency; // / frequency
             Console.WriteLine($"Target period: {targetPeriodnt}ms, frequency: {frequency}");
             stopwatch.Start();
