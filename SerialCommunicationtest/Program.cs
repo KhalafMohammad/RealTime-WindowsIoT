@@ -2,6 +2,7 @@
 //THIS DUCOMENT WAS MADE USING https://learn.microsoft.com/en-us/dotnet/api/system.io.ports.serialport?view=net-8.0 API DOCUMENTATION
 //IT ENTRFACES WITH THE SERIAL PORTS ON THE COMPUTER AND READS DATA FROM THE SERIAL PORT FROM THE ESP32
 //THE DATA IS THEN DECODED AND PRINTED TO THE CONSOLE
+
 // [PROTOTYPE]
 using System;
 using System.Diagnostics;
@@ -24,22 +25,15 @@ namespace WinSerialCommunication
         {
             try
             {
-                Process process = Process.GetCurrentProcess();
-                process.ProcessorAffinity = 0xF0; // use only the first processor
-                process.PriorityClass = ProcessPriorityClass.RealTime;
-                Console.WriteLine("Processor affinity: " + process.ProcessorAffinity);
-                for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
-                {
-                    process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
-                    Console.WriteLine("Thread ID: " + process.Threads[i].Id + " Priority: " + process.Threads[i].PriorityLevel);
-                }
+                // set the process to real-time priority
+                //RealTime.Process_managment(Process.GetCurrentProcess(), (IntPtr)0xF0, ProcessPriorityClass.RealTime); 
 
                 // create a new SerialPort object with default settings and 1khz
                 Serial_Init Serial_Init = new Serial_Init();
 
                 // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
                 Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-                Serial_Init.serial_init();
+                //Serial_Init.serial_init();
 
                 // read from serial port [UNCOMMENT TO USE]
                 //Read.Data_to_read(ref Serial_Init._serialport);
@@ -47,16 +41,17 @@ namespace WinSerialCommunication
                 //write to serial port [UNCOMMENT TO USE]            
                 //Write.Data_to_write(ref Serial_Init._serialport);
 
-                //Thread newThread = new Thread(() =>
-                //{
-                //    Newclass newclass = new Newclass();
-                //    newclass.Exicute();
-                //});
-                //newThread.Start();
+                // create a new thread for the two axis robot
+                Thread newthread = new Thread(() =>
+                {
+                    TwoAxisRobot twoAxisRobot = new TwoAxisRobot(0.5, 1.00, 0.5);
+                    Console.WriteLine(twoAxisRobot.CalculateInverseKinematics( 0.27, 0.57));
 
+                });
 
-                TwoAxisRobot twoAxisRobot = new TwoAxisRobot(0.5,1.00,0.5);
-                Console.WriteLine(twoAxisRobot.CalculateInverseKinematics(1, 1));
+                //RealTime.manage_thread(Process.GetCurrentProcess(), newthread.ManagedThreadId, ThreadPriorityLevel.TimeCritical); // temp for testing purposes thread priority
+
+                newthread.Start();
 
                 Write.data(ref Serial_Init._serialport, 0);
                 Serial_Init._serialport.Close(); // close the serial port

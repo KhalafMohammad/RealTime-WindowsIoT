@@ -6,33 +6,38 @@
 // curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2)));
 // the speed is the same as the the target steps e.g 3200 maximum speed is 3200
 
-
+//#define kernel32
+#define stopwatch
 using Microsoft.VisualBasic;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Collections;
+
+
 
 namespace WinSerialCommunication
 {
+
     internal class Scurve2
     {
-        [DllImport("Kernel32.dll")]
+
+        [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
 
-        [DllImport("Kernel32.dll")]
+        [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceFrequency(out long lpFrequency);
 
         public static float max_freq;
         public static double curr_freq = 0;
         public static float acc_max = 2000;
         public static float j_max = 1.5F;
-        public static float t_j = 0.5F;
-        public static float dt = 0.01F;
+        public static float t_j = 0.455F;
+        public static float dt = 0.001F;
         public static int target = 1000; // target position
         public static int positie; // incoming position from the serial port
         public static int first_portion; // 1/3rd of the target
@@ -40,22 +45,28 @@ namespace WinSerialCommunication
         public static bool flag = true;
         public static int dir;
         const double targetPeriodMs = 1.0;
+#if stopwatch
+        public static Stopwatch watch = new Stopwatch(); // start stopwatch
+#endif
 
 
         public static void Phase_one(ref SerialPort sp, int accelertion)
         {
+
             Process process = Process.GetCurrentProcess();
+            process.ProcessorAffinity = 0xF00; // use only the first processor
+            process.PriorityClass = ProcessPriorityClass.RealTime;
+            Console.WriteLine("Processor affinity: " + process.ProcessorAffinity);
             for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
             {
+
                 process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
-                Console.WriteLine("Thread ID: " + process.Threads[i].Id + " Priority: " + process.Threads[i].PriorityLevel);
+                process.Threads[i].ProcessorAffinity = 0xF00;
             }
 
-            if (!QueryPerformanceFrequency(out long frequency))
-            {
-                throw new InvalidOperationException("Failed to query performance frequency");
-            }
-            double targetPeriodMs = 1.0f;
+
+            QueryPerformanceFrequency(out long frequency);
+
 
             int acc_b = Math.Abs(accelertion); // absolute value of the acceleration
 
@@ -68,17 +79,25 @@ namespace WinSerialCommunication
                 dir = 1;
             }
 
-            
 
             max_freq = (int)Math.Round((double)acc_b / 3);
             first_portion = (int)Math.Round((double)target / 3);
 
+            //var watch2 = new Stopwatch(); // start stopwatch
+            //watch2.Start();
+            QueryPerformanceCounter(out long start1);
 
-            for (float t = 0; t < 0.45; t += dt)
+
+            for (float t = 0; t < t_j; t += dt)
             {
+#if kernel32
                 QueryPerformanceCounter(out long start);
+#elif stopwatch
+                watch.Restart();
 
-                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / 0.5), 2))); // S-curve formula
+#endif
+
+                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / 0.50f), 2))); // S-curve formula
                 if (dir == -1)
                 {
                     curr_freq = -curr_freq;
@@ -88,43 +107,76 @@ namespace WinSerialCommunication
                 {
                     Write.data(ref sp, (int)curr_freq);
                 }
-                QueryPerformanceCounter(out long end);
-                double elapsed = (end - start) * 1000.0 / frequency;
-                double remainingTimeMs = targetPeriodMs - elapsed;
+#if kernel32
+                QueryPerformanceCounter(out long stop);
+                double elapsed = (stop - start) * 1000.0 / frequency;
+                double remaining = targetPeriodMs - elapsed;
+                double oldlap = elapsed;
+                if (remaining > 0)
+                {
+                    while((stop - start) * 1000.0 / frequency < targetPeriodMs)
+                    {
+                        QueryPerformanceCounter(out stop);
+                        Thread.SpinWait(1);
+                    }
+                    QueryPerformanceCounter(out long stop2);
+                    double elapsed2 = (stop2 - start) * 1000.0 / frequency;
+                    Console.WriteLine($"Iteration {curr_freq:f2}, target time {targetPeriodMs}, full time: {elapsed2:f3}ms, remaining time: {remaining:f4}ms, old lap: {oldlap:f4}ms");
+
+                }
+#elif stopwatch
+                double executionTimeMs = watch.Elapsed.TotalMilliseconds;
+
+                // Calculate remaining time to reach 1ms period
+                double remainingTimeMs = targetPeriodMs - executionTimeMs;
+
                 if (remainingTimeMs > 0)
                 {
-                    while (elapsed < remainingTimeMs)
+                    // Precise waiting for the remaining time
+                    var waitTimer = new Stopwatch();
+                    waitTimer.Start();
+                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
                     {
-                        QueryPerformanceCounter(out end);
-                        elapsed = (end - start) * 1000.0 / frequency;
+                        Thread.SpinWait(1);
                     }
                 }
-
+#endif
             }
+            //watch2.Stop();
+            //Console.WriteLine($"Total time: {watch2.ElapsedMilliseconds:f5}ms");
+            QueryPerformanceCounter(out long stop1);
+            double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
+            Console.WriteLine($"Total time: {elapsed1:f5}ms");
+
             flag = true;
             Phase_two(ref sp, accelertion); // call the next phase (Phase_two)
         }
-        public static void Phase_two(ref SerialPort sp, int accelertion)
+        public static void Phase_two(ref SerialPort sp, int acceleration)
         {
-            if (!QueryPerformanceFrequency(out long frequency))
-            {
-                throw new InvalidOperationException("Failed to query performance frequency");
-            }
-            double targetPeriodMs = 1.0f;
-            int acc_b = Math.Abs(accelertion); // absolute value of the acceleration
 
-            if (accelertion < 0)
+            QueryPerformanceFrequency(out long frequency);
+            int acc_b = Math.Abs(acceleration); // absolute value of the acceleration
+
+            if (acceleration < 0)
             {
                 dir = -1;
             }
             else
             {
                 dir = 1;
+
             }
+            QueryPerformanceCounter(out long start1);
+
             // cheange this to 0.45 or 0.5
-            for (float t = 0.5F; t < 2.5; t += dt)
+            for (float t = t_j; t < 3.200; t += dt)
             {
+#if kernel32
                 QueryPerformanceCounter(out long start);
+#elif stopwatch
+                watch.Restart();
+
+#endif  
                 if (flag == false)
                 {
                     break;
@@ -140,28 +192,50 @@ namespace WinSerialCommunication
                 {
                     Write.data(ref sp, (int)curr_freq);
                 }
-                QueryPerformanceCounter(out long end);
-                double elapsed = (end - start) * 1000.0 / frequency;
-                double remainingTimeMs = targetPeriodMs - elapsed;
-                if (remainingTimeMs > 0)
+#if kernel32
+                QueryPerformanceCounter(out long stop);
+                double elapsed = (stop - start) * 1000.0 / frequency;
+                double remaining = targetPeriodMs - elapsed;
+                if(remaining > 0)
                 {
-                    while (elapsed < remainingTimeMs)
+                    while((stop - start) * 1000.0 / frequency < targetPeriodMs)
                     {
-                        QueryPerformanceCounter(out end);
-                        elapsed = (end - start) * 1000.0 / frequency;
+                        QueryPerformanceCounter(out stop);
+                        Thread.SpinWait(1);
+
                     }
                 }
+#elif stopwatch
+                double executionTimeMs = watch.Elapsed.TotalMilliseconds;
+
+                // Calculate remaining time to reach 1ms period
+                double remainingTimeMs = targetPeriodMs - executionTimeMs;
+
+                if (remainingTimeMs > 0)
+                {
+                    // Precise waiting for the remaining time
+                    var waitTimer = new Stopwatch();
+                    waitTimer.Start();
+                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
+                    {
+                        Thread.SpinWait(1);
+                    }
+                }
+#endif
             }
-            Phase_three(ref sp, accelertion);
+            QueryPerformanceCounter(out long stop1);
+            double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
+            Console.WriteLine($"Total time: {elapsed1:f5}ms");
+            if (flag == true)
+            {
+                Phase_three(ref sp, acceleration);
+            }
+            
         }
 
         public static void Phase_three(ref SerialPort sp, int accelertion)
         {
-            if (!QueryPerformanceFrequency(out long frequency))
-            {
-                throw new InvalidOperationException("Failed to query performance frequency");
-            }
-            double targetPeriodMs = 1.0f;
+            QueryPerformanceFrequency(out long frequency);
             int acc_b = Math.Abs(accelertion); // absolute value of the acceleration
 
             if (accelertion < 0)
@@ -175,23 +249,24 @@ namespace WinSerialCommunication
 
             max_freq = (int)Math.Round((double)acc_b / 3);
 
+            QueryPerformanceCounter(out long start1);
 
             for (float t = t_j; t > 0; t -= dt)
             {
+#if kernel32
                 QueryPerformanceCounter(out long start);
+#elif stopwatch
+                watch.Restart();
 
+#endif
                 if (flag == false)
                 {
                     Write.data(ref sp, 0);
                     break;
                 }
-                //else
-                //{
-                //    t_j += 0.05F;
 
-                //}
 
-                curr_freq = Math.Round(max_freq * (1 - (float)Math.Pow((1 - t / t_j), 2)));
+                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / 0.50f), 2)));
                 if (dir == -1)
                 {
                     curr_freq = -curr_freq;
@@ -201,25 +276,48 @@ namespace WinSerialCommunication
                 {
                     Write.data(ref sp, (int)curr_freq);
                 }
-                QueryPerformanceCounter(out long end);
-                double elapsed = (end - start) * 1000.0 / frequency;
-                double remainingTimeMs = targetPeriodMs - elapsed;
-                if (remainingTimeMs > 0)
+#if kernel32
+                QueryPerformanceCounter(out long stop);
+                double elapsed = (stop - start) * 1000.0 / frequency;
+                double remaining = targetPeriodMs - elapsed;
+                if(remaining > 0)
                 {
-                    while (elapsed < remainingTimeMs)
+                    while((stop - start) * 1000.0 / frequency < targetPeriodMs)
                     {
-                        QueryPerformanceCounter(out end);
-                        elapsed = (end - start) * 1000.0 / frequency;
+                        QueryPerformanceCounter(out stop);
+                        Thread.SpinWait(1);
+
                     }
                 }
+#elif stopwatch
+                double executionTimeMs = watch.Elapsed.TotalMilliseconds;
+
+                // Calculate remaining time to reach 1ms period
+                double remainingTimeMs = targetPeriodMs - executionTimeMs;
+
+                if (remainingTimeMs > 0)
+                {
+                    // Precise waiting for the remaining time
+                    var waitTimer = new Stopwatch();
+                    waitTimer.Start();
+                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
+                    {
+                        Thread.SpinWait(1);
+                    }
+                }
+#endif
+
             }
-            if(flag == false)
+            QueryPerformanceCounter(out long stop1);
+            double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
+            Console.WriteLine($"Total time: {elapsed1:f5}ms");
+            if (flag == false)
             {
                 Write.data(ref sp, 0);
             }
 
-            int final_freq = 0;
-            Write.data(ref sp, final_freq);
+            //int final_freq = 0;
+            //Write.data(ref sp, final_freq);
             flag = true;
         }
     }

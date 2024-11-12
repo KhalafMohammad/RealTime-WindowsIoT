@@ -43,7 +43,7 @@ namespace WinSerialCommunication
                 else
                 {
 
-                    Scurve.Phase_one(ref sp, (int)value);
+                    Scurve2.Phase_one(ref sp, (int)value);
                     //Scurve.Phase_two(ref sp, value);
                     //Scurve.Phase_three(ref sp, value);
                     //NewScurve.Sigmoid_curve(ref sp);

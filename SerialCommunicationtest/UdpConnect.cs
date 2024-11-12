@@ -33,7 +33,7 @@ namespace WinSerialCommunication
             }
         }
 
-        public void client(double message)
+        public void client(string message)
         {
             UdpClient udpClient = new UdpClient();
 
@@ -44,11 +44,11 @@ namespace WinSerialCommunication
 
             Console.WriteLine("Message sent from C# client.");
 
-            // Optionally, receive response
-            IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 8080);
-            byte[] receivedData = udpClient.Receive(ref remoteEP);
-            string receivedMessage = Encoding.UTF8.GetString(receivedData);
-            Console.WriteLine($"Received response: {receivedMessage}");
+            //// Optionally, receive response
+            //IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, 8080);
+            //byte[] receivedData = udpClient.Receive(ref remoteEP);
+            //string receivedMessage = Encoding.UTF8.GetString(receivedData);
+            //Console.WriteLine($"Received response: {receivedMessage}");
         }
     }
 }

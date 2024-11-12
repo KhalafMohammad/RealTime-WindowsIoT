@@ -1,4 +1,6 @@
-﻿using System;
+﻿// timers tester class for real-time performance
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
