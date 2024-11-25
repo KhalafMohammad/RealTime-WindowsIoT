@@ -33,25 +33,26 @@ namespace WinSerialCommunication
 
                 // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
                 Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-                //Serial_Init.serial_init();
+                Serial_Init.serial_init();
 
                 // read from serial port [UNCOMMENT TO USE]
                 //Read.Data_to_read(ref Serial_Init._serialport);
 
                 //write to serial port [UNCOMMENT TO USE]            
-                //Write.Data_to_write(ref Serial_Init._serialport);
+                Write.Data_to_write(ref Serial_Init._serialport);
 
                 // create a new thread for the two axis robot
-                Thread newthread = new Thread(() =>
-                {
-                    TwoAxisRobot twoAxisRobot = new TwoAxisRobot(0.5, 1.00, 0.5);
-                    Console.WriteLine(twoAxisRobot.CalculateInverseKinematics( 0.27, 0.57));
 
-                });
+                //Thread Kinematic_thread = new Thread(() =>
+                //{
+                //    TwoAxisRobot twoAxisRobot = new TwoAxisRobot(0.5, 1.0, 0.5);
+                //    Console.WriteLine(twoAxisRobot.CalculateInverseKinematics( 0.26, 0.80)); // 0.25, 1.475 is maximum reach vertically
+
+                //});
 
                 //RealTime.manage_thread(Process.GetCurrentProcess(), newthread.ManagedThreadId, ThreadPriorityLevel.TimeCritical); // temp for testing purposes thread priority
 
-                newthread.Start();
+                //Kinematic_thread.Start();
 
                 Write.data(ref Serial_Init._serialport, 0);
                 Serial_Init._serialport.Close(); // close the serial port
@@ -99,8 +100,8 @@ namespace WinSerialCommunication
                     if (result >= value_abs || result > value_abs - 5 && result < value_abs + 5) //  || result > value_abs - 5 && result < value_abs + 5
                     {
                         Scurve.flag = false;
-                        NewScurve.flag = false;
-                        Scurve2.flag = false;
+                        //NewScurve.flag = false;
+                        //Scurve2.flag = false;
                     }
 
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);

@@ -25,9 +25,10 @@ namespace WinSerialCommunication
         public static void Data_to_write(ref SerialPort sp)
         {
             sp.WriteTimeout = 1000;
-
+            RealTime.Process_managment(Process.GetCurrentProcess(), (IntPtr)0xC0, ProcessPriorityClass.RealTime);
             while (true)
             {
+
                 //Console.Write("Enter Target position? >>>");
                 //Scurve.target = Convert.ToInt32(Console.ReadLine());
                 Write.data(ref sp, 0); // clear when operatig from stillness
@@ -49,18 +50,6 @@ namespace WinSerialCommunication
                     //NewScurve.Sigmoid_curve(ref sp);
 
                 }
-
-                //value = -1600;
-                //Scurve.Phase_one(ref sp, value);
-                //Scurve.Phase_two(ref sp, value);
-                //Scurve.Phase_three(ref sp, value);
-                //Thread.Sleep(500);
-
-                //value = 1600;
-                //Scurve.Phase_one(ref sp, value);
-                //Scurve.Phase_two(ref sp, value);
-                //Scurve.Phase_three(ref sp, value);
-                //Thread.Sleep(500);
             }
         }
 

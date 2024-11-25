@@ -8,15 +8,9 @@
 
 //#define kernel32
 #define stopwatch
-using Microsoft.VisualBasic;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 
 
@@ -32,16 +26,12 @@ namespace WinSerialCommunication
         [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceFrequency(out long lpFrequency);
 
-        public static float max_freq;
         public static double curr_freq = 0;
-        public static float acc_max = 2000;
         public static float j_max = 1.5F;
-        public static float t_j = 0.455F;
+        public static float t_j = 0.500F;
         public static float dt = 0.001F;
         public static int target = 1000; // target position
         public static int positie; // incoming position from the serial port
-        public static int first_portion; // 1/3rd of the target
-        public static int second_portion = first_portion * 2; // 2/3rds of the target
         public static bool flag = true;
         public static int dir;
         const double targetPeriodMs = 1.0;
@@ -53,18 +43,7 @@ namespace WinSerialCommunication
         public static void Phase_one(ref SerialPort sp, int accelertion)
         {
 
-            Process process = Process.GetCurrentProcess();
-            process.ProcessorAffinity = 0xF00; // use only the first processor
-            process.PriorityClass = ProcessPriorityClass.RealTime;
-            Console.WriteLine("Processor affinity: " + process.ProcessorAffinity);
-            for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
-            {
-
-                process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
-                process.Threads[i].ProcessorAffinity = 0xF00;
-            }
-
-
+            RealTime.manage_thread(Process.GetCurrentProcess(), Thread.CurrentThread.ManagedThreadId, ThreadPriorityLevel.TimeCritical); // temp for testing purposes thread priority
             QueryPerformanceFrequency(out long frequency);
 
 
@@ -80,15 +59,13 @@ namespace WinSerialCommunication
             }
 
 
-            max_freq = (int)Math.Round((double)acc_b / 3);
-            first_portion = (int)Math.Round((double)target / 3);
 
             //var watch2 = new Stopwatch(); // start stopwatch
             //watch2.Start();
             QueryPerformanceCounter(out long start1);
 
 
-            for (float t = 0; t < t_j; t += dt)
+            for (float t = 0.001f; t < t_j; t += dt)
             {
 #if kernel32
                 QueryPerformanceCounter(out long start);
@@ -97,7 +74,7 @@ namespace WinSerialCommunication
 
 #endif
 
-                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / 0.50f), 2))); // S-curve formula
+                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / t_j), 2))); // S-curve formula
                 if (dir == -1)
                 {
                     curr_freq = -curr_freq;
@@ -127,19 +104,7 @@ namespace WinSerialCommunication
 #elif stopwatch
                 double executionTimeMs = watch.Elapsed.TotalMilliseconds;
 
-                // Calculate remaining time to reach 1ms period
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    // Precise waiting for the remaining time
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-                }
+                Time_delay(executionTimeMs);
 #endif
             }
             //watch2.Stop();
@@ -169,7 +134,7 @@ namespace WinSerialCommunication
             QueryPerformanceCounter(out long start1);
 
             // cheange this to 0.45 or 0.5
-            for (float t = t_j; t < 3.200; t += dt)
+            for (float t = t_j; t < 1.000; t += dt)
             {
 #if kernel32
                 QueryPerformanceCounter(out long start);
@@ -208,19 +173,7 @@ namespace WinSerialCommunication
 #elif stopwatch
                 double executionTimeMs = watch.Elapsed.TotalMilliseconds;
 
-                // Calculate remaining time to reach 1ms period
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    // Precise waiting for the remaining time
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-                }
+                Time_delay(executionTimeMs);
 #endif
             }
             QueryPerformanceCounter(out long stop1);
@@ -230,7 +183,7 @@ namespace WinSerialCommunication
             {
                 Phase_three(ref sp, acceleration);
             }
-            
+
         }
 
         public static void Phase_three(ref SerialPort sp, int accelertion)
@@ -247,7 +200,6 @@ namespace WinSerialCommunication
                 dir = 1;
             }
 
-            max_freq = (int)Math.Round((double)acc_b / 3);
 
             QueryPerformanceCounter(out long start1);
 
@@ -266,7 +218,7 @@ namespace WinSerialCommunication
                 }
 
 
-                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / 0.50f), 2)));
+                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / t_j), 2)));
                 if (dir == -1)
                 {
                     curr_freq = -curr_freq;
@@ -292,21 +244,8 @@ namespace WinSerialCommunication
 #elif stopwatch
                 double executionTimeMs = watch.Elapsed.TotalMilliseconds;
 
-                // Calculate remaining time to reach 1ms period
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    // Precise waiting for the remaining time
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-                }
+                Time_delay(executionTimeMs);
 #endif
-
             }
             QueryPerformanceCounter(out long stop1);
             double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
@@ -320,5 +259,28 @@ namespace WinSerialCommunication
             //Write.data(ref sp, final_freq);
             flag = true;
         }
+
+
+        private static void Time_delay(double executionTimeMs)
+        {
+            double remainingTimeMs = targetPeriodMs - executionTimeMs;
+
+            if (remainingTimeMs > 0)
+            {
+                // Precise waiting for the remaining time
+                var waitTimer = new Stopwatch();
+                waitTimer.Start();
+                while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
+                {
+                    Thread.SpinWait(1);
+                }
+            }
+
+        }
+
     }
+
+
 }
+
+

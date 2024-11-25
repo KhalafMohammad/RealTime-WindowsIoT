@@ -32,6 +32,10 @@ namespace WinSerialCommunication
 
             double theta = Math.Acos((h2 * h2 + L1 * L1 - L2 * L2) / (2 * h2 * L1));
 
+            double M     = Math.Acos((L1 * L1 + L2 * L2 - h1 * h1) / (2 * L1 * L2));
+
+            double N     = Math.Acos((L1 * L1 + L2 * L2 - h2 * h2) / (2 * L1 * L2));
+
             double sigma = Math.PI - theta - beta;
 
             double xi = omega + gamma;
@@ -42,6 +46,10 @@ namespace WinSerialCommunication
 
             xi = Math.Round(180 + xi);
 
+            M = Math.Round(M * (180 / Math.PI));
+
+            N = Math.Round(N * (180 / Math.PI));
+
             sigma = 180 + sigma;
             Console.WriteLine("xi: " + xi + " sigma: " + sigma);
             UDPServer udpServer = new();
@@ -51,6 +59,7 @@ namespace WinSerialCommunication
 
             return (xi, sigma); // xi for motor 1 sigma for motor 2
         }
+
     }
 }
 

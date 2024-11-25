@@ -3,16 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\scurve - copy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:scurve - copy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\write.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:write.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\kinematics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:kinematics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\udpconnect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:udpconnect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,17 +26,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 173,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Program.cs*",
-              "RelativeToolTip": "Program.cs*",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAEwC8AAABZAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAQwGYAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-18T09:58:54.248Z",
               "IsPinned": true,
@@ -43,38 +47,50 @@
               "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
             },
             {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Class1.cs",
+              "RelativeDocumentMoniker": "Class1.cs",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Class1.cs",
+              "RelativeToolTip": "Class1.cs",
+              "ViewState": "AgIAACYAAAAAAAAAAAAwwBsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-15T13:35:59.974Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Scurve - Copy.cs",
+              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Scurve - Copy.cs",
+              "RelativeDocumentMoniker": "Scurve - Copy.cs",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Scurve - Copy.cs",
+              "RelativeToolTip": "Scurve - Copy.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-15T11:19:28.642Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Write.cs",
+              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Write.cs",
+              "RelativeDocumentMoniker": "Write.cs",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Write.cs",
+              "RelativeToolTip": "Write.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAAgwC4AAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-15T10:37:18.93Z",
+              "EditorCaption": ""
+            },
+            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Kinematics.cs",
-              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Kinematics.cs",
-              "RelativeDocumentMoniker": "Kinematics.cs",
-              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Kinematics.cs",
-              "RelativeToolTip": "Kinematics.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAA0wC8AAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-12T10:58:58.625Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UdpConnect.cs",
-              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\UdpConnect.cs",
-              "RelativeDocumentMoniker": "UdpConnect.cs",
-              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\UdpConnect.cs",
-              "RelativeToolTip": "UdpConnect.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAQwCEAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-12T10:38:50.668Z",
-              "EditorCaption": ""
             }
           ]
         }

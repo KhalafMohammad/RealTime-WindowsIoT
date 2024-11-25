@@ -26,15 +26,6 @@ namespace WinSerialCommunication
 
         public void Exicute()
         {
-            
-            Process process = Process.GetCurrentProcess();
-            for (int i = 1; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
-            {
-                process.Threads[i].ProcessorAffinity = (IntPtr)0xF0; // use only the first processor
-                process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
-                Console.WriteLine("Thread ID: " + process.Threads[i].Id + " Priority: " + process.Threads[i].PriorityLevel);
-            }
-            
 
             // How many iterations you want to run
             const int iterations = 100;
