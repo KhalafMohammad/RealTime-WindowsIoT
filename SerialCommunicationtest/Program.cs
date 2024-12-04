@@ -24,31 +24,70 @@ namespace WinSerialCommunication
         {
             try
             {
-                Process process = Process.GetCurrentProcess();
-                process.ProcessorAffinity = 0xF00; // use only the first processor
-                process.PriorityClass = ProcessPriorityClass.Normal;
-                Console.WriteLine("Processor affinity: " + process.ProcessorAffinity);
-                for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
-                {
-                    process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
-                }
+                //IntPtr aff_mask = (IntPtr)0xC0; // use only the first processor
+                // Set the process priority to high and the thread priority to time critical
+                RealTime.Process_managment(Process.GetCurrentProcess(), 0xC0, ProcessPriorityClass.RealTime);
+                RealTime.Threads_managment(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical);
 
-                // create a new SerialPort object with default settings and 1khz
-                Serial_Init Serial_Init = new Serial_Init();
+
+                // Initialize the serial port
+                //Serial_Init Serial_Init = new Serial_Init();
 
                 // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
-                //Thread newthread = new Thread(() => Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler));
-                //newthread.Start();
-                Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-                Serial_Init.serial_init();
+                //Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
+                // Initialize the serial port
+                //Serial_Init.serial_init();
 
 
                 //write to serial port [UNCOMMENT TO USE]            
-                Write.Data_to_write(ref Serial_Init._serialport);
+                //Write.Data_to_write(ref Serial_Init._serialport);
 
-        
+                Exception exception;
 
-                Serial_Init._serialport.Close(); // close the serial port
+                const double L1 = 7.500;
+                const double L2 = 16.250;
+                const double D = 8.750;
+
+
+                const double tool_offset = 3.300;
+                double Xi = 4.375; // x mini
+                double Yi = 9.90; // y minimumm 10
+
+
+                TwoAxisRobot ZTIMK_Bot = new TwoAxisRobot(L1, L2, D);
+                (int motor1_angle, int motor2_angle) = ZTIMK_Bot.CalculateInverseKinematics(Xi, Yi);
+
+                //motor1 angle domain is -10 to 90
+                //motor2 angle domain is 90 to 190
+                Write.Steps_to_angle(1250);
+
+
+                if (motor1_angle > 190 || motor1_angle < 90)
+                {
+                    exception = new Exception("Motor 1 angle is out of domain");
+                }
+                else if (motor2_angle > 90 || motor2_angle < -10)
+                {
+                    exception = new Exception("Motor 2 angle is out of domain");
+                }
+                else
+                {
+                    exception = null;
+                }
+
+                if (exception != null)
+                {
+                    throw exception;
+                }
+                else
+                {
+                    Console.WriteLine("Motor 1 angle: " + motor1_angle + " Motor 2 angle: " + motor2_angle);
+
+                }
+
+
+                //Serial_Init._serialport.Close(); // close the serial port
                 Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception ex)
@@ -64,36 +103,13 @@ namespace WinSerialCommunication
 
                 SerialPort sp = (SerialPort)sender;
 
-                //string line = sp.ReadLine();
-                //int value_abs = Math.Abs(Write.value);
-
-                //if (int.TryParse(line, out int result)) // Try to parse the line as an integer
-                //{
-
-                //    Console.WriteLine(result);
-                //}
-                //else
-                //{
-                //    Console.WriteLine("Invalid integer format");
-                //}
 
                 byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
                 sp.Read(buffer, 0, buffer.Length); // read the data from the serial port
                 if (buffer.Length > 0) // check if the buffer has data
                 {
-                    //string decode_string = Encoding.ASCII.GetString(buffer); // convert the buffer to string
-                    //if (int.TryParse(decode_string, out int result)) // convert the string to an integer
-                    //{
-                    //    Console.WriteLine("Integer Received: " + result);
-                    //}
-                    //else
-                    //{
-                    //    Console.WriteLine("Invalid integer format");
-                    //}
-
 
                     dataBuffer.Append(Encoding.UTF8.GetString(buffer));
-
                     // Process de data in de buffer
                     ProcessData(ref sp);
                 }
@@ -113,12 +129,6 @@ namespace WinSerialCommunication
             {
                 if (int.TryParse(part, out int result)) //  CHECK als de data een integer is
                 {
-                    //int value_abs = Math.Abs(Write.value);
-                    //if (result >= value_abs || result > value_abs - 5 && result < value_abs + 5) //  || result > value_abs - 5 && result < value_abs + 5
-                    //{
-                    //    Scurve.flag = false;
-                    //    Scurve2.flag = false;
-                    //}
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: <<< " + result);
                 }
 
@@ -126,8 +136,5 @@ namespace WinSerialCommunication
             // Clear the buffer after processing
             dataBuffer.Clear();
         }
-
-        
-
     }
 }

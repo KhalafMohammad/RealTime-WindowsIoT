@@ -21,6 +21,8 @@ namespace WinSerialCommunication
             Console.WriteLine("Process CPU affinity: " + process.ProcessorAffinity);
             Console.WriteLine("Priority Class: " + process.PriorityClass);
         }
+
+
         public static void Threads_managment(Process process, ThreadPriorityLevel Threads_pri = ThreadPriorityLevel.Normal)
         {
             for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 

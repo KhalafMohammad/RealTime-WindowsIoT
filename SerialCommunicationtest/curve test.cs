@@ -17,23 +17,30 @@ namespace WinSerialCommunication
 
         public static void scurve_test()
         {
-            for (double t = 0.001f; t < t_j; t += dt)
+            //for (double t = 0.000f; t < t_j; t += dt)
+            //{
+
+            //    curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / t_j), 2)));
+            //    Console.WriteLine($"({t:f3},{curr_freq})");
+            //    Thread.Sleep(1);
+            //}
+            for (double t = t_j; t < t_j * 2; t += dt)
             {
 
-                curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / t_j), 2)));
-                Console.WriteLine(curr_freq);
+                curr_freq = acc_b;
+                Console.WriteLine($"({t:f3},{curr_freq})");
                 Thread.Sleep(1);
-
             }
-
-            for (double t = t_j; t > 0; t -= dt)
+            double i = t_j * 2;
+            for (double t = t_j; t > 0.000f; t -= dt)
             {
-
+                
+                i += dt;
                 curr_freq = Math.Round(acc_b * (1 - (float)Math.Pow((1 - t / t_j), 2)));
-                Console.WriteLine(curr_freq);
+                Console.WriteLine($"({i:f3},{curr_freq})");
                 Thread.Sleep(1);
-
             }
+
         }
     }
 }
