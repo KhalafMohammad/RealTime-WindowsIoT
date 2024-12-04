@@ -23,19 +23,6 @@ namespace WinSerialCommunication
             while (true)
             {
 
-                Console.WriteLine("Enter steps?");
-                int value = Convert.ToInt32(Console.ReadLine());
-                if (value == 2)
-                {
-                    Console.Clear();
-                }
-                else
-                {
-                    Scurve.Phase_one(ref sp, value);
-                    Scurve.Phase_two(ref sp, value);
-                    Scurve.Phase_three(ref sp, value);
-                }
-
                 byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
                 sp.Read(buffer, 0, buffer.Length);
 
@@ -60,13 +47,7 @@ namespace WinSerialCommunication
                 if (int.TryParse(part, out int result)) //  CHECK als de data een integer is
                 {
                     position = result; // update de positie
-                    Scurve.positie = position;
                     Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: >>> " + result);
-                    if (result == 12)
-                    {
-                        Console.WriteLine("I GOT 3200 I GOT 3200 I GOT 3200 I GOT 3200 I GOT 3200 ");
-                    }
-                    //Write.recieve_flag = true;
                 }
                 else
                 {

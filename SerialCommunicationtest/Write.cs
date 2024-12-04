@@ -11,8 +11,9 @@ using System.Windows.Input;
 using System.Threading;
 using System.Runtime.InteropServices;
 using System.IO.Pipes;
+using System.Security.Cryptography;
 
-
+//success 
 namespace WinSerialCommunication
 {
     internal class Write
@@ -20,36 +21,44 @@ namespace WinSerialCommunication
         public static bool recieve_flag = true;
         public static int value;
         public static int position;
-        public static double full_rotation = 3200;
-        public static double step_rotation;
+        public static double t1;
+        public static double t2;
+        public static double t3;
         public static void Data_to_write(ref SerialPort sp)
         {
-            sp.WriteTimeout = 1000;
-            RealTime.Process_managment(Process.GetCurrentProcess(), (IntPtr)0xC0, ProcessPriorityClass.RealTime);
+
             while (true)
             {
-
-                //Console.Write("Enter Target position? >>>");
-                //Scurve.target = Convert.ToInt32(Console.ReadLine());
-                Write.data(ref sp, 0); // clear when operatig from stillness
-                Console.Write("\nVoer in de steppen? >>>"); // any value is going to be the mount of pulses per second.
-
+                Console.WriteLine("\nVoer in de steppen? >>>"); // any value is going to be the mount of pulses per second.
                 value = Convert.ToInt32(Console.ReadLine());
+                //string value_string = Console.ReadLine();
+                //sp.Write(value_string);
 
-                
-                if (value == 2)
-                {
-                    Console.Clear();
-                }
-                else
-                {
+                TwoAxisRobot ZTIMK_Bot = new TwoAxisRobot(75.00, 162.50, 87.50);
+                (double motor1_angle, double motor2_angle) = ZTIMK_Bot.CalculateInverseKinematics(75.00, 162.50);
 
-                    Scurve2.Phase_one(ref sp, (int)value);
-                    //Scurve.Phase_two(ref sp, value);
-                    //Scurve.Phase_three(ref sp, value);
-                    //NewScurve.Sigmoid_curve(ref sp);
 
-                }
+                int steps = Angle_to_steps(value);
+                Console.WriteLine(steps + " steps");
+                calculate_time(steps);
+                Scurve2 Motor1 = new Scurve2(t1, t3, steps, position, "m1 ");
+                Console.WriteLine($"{Motor1.t_j}, {Motor1.j_max}");
+                Motor1.Phase_one(ref sp, steps);
+                Motor1.Phase_two(ref sp, steps);
+                Motor1.Phase_three(ref sp, steps);
+
+
+                //Console.WriteLine(Angle_to_steps(value) + " steps");
+                //calculate_time(Angle_to_steps(value));
+                //Scurve2 Motor2 = new Scurve2(t1, t3, Angle_to_steps(value), position, "m2 ");
+                //Console.WriteLine($"{Motor2.t_j}, {Motor2.j_max}");
+                //Motor2.Phase_one(ref sp, Angle_to_steps(value));
+                //Motor2.Phase_two(ref sp, Angle_to_steps(value));
+                //Motor2.Phase_three(ref sp, Angle_to_steps(value));
+
+
+                //music.PlayMusic(ref sp);    
+
             }
         }
 
@@ -64,6 +73,29 @@ namespace WinSerialCommunication
             value_bytes[1] = (byte)((int)data & 0xFF); // bitwise AND with 0xFF
             sp.Write(value_bytes, 0, 2); // write 1
             Console.WriteLine(Write.GetTimestamp() + " Wrote " + data + " over" + sp.PortName + ".");
+        }
+        public static (double t1, double t2, double t3) calculate_time(int steps)
+        {
+            int transmit_speed = 2000;
+            // 0.001 = 1ms per step 
+            int value1 = Math.Abs(steps);
+            double t_j = (double)value1 / transmit_speed;
+            t1 = t_j / 3;
+            t1 = Math.Round(t1, 3);
+            t3 = t_j / 3;
+            t3 = Math.Round(t3, 3);
+            t2 = t3 + t1;
+            Console.WriteLine($"t_j: {t_j:f4} t1:{t1:f4} , t2:{t2:f4}, t3:{t3:f4} ");
+            //double t_j = Math.Sqrt((double)value / 2000);
+            //Console.WriteLine("t_j: " + t_j);
+            return (t1, t2, t3);
+        }
+
+
+        public static int Angle_to_steps(int angle)
+        {
+            double steps_per_angle = 5000.00f / 360.0f;
+            return (int)(Math.Round(angle * steps_per_angle));
         }
     }
 }
