@@ -201,26 +201,6 @@ namespace WinSerialCommunication
                         Console.WriteLine("space bar RELEASED");
                     }
                 }
-
-                //int value0 = 0;
-                //byte[] value_bytes0 = new byte[2];
-                //value_bytes0[0] = (byte)(value0 >> 8); // shift 8 bits to the right
-                //value_bytes0[1] = (byte)(value0 & 0xFF); // bitwise AND with 0xFF
-
-                //sp.Write(value_bytes0, 0, 2); // write 1
-
-                //// write string followed by new line to Serial Device 
-                //sp.Write("$" + DateTime.UtcNow + " serial test by mohammad!\r");
-                //Debug.WriteLine(DateTime.UtcNow + " serial test by mohammad!\r");
-                //Thread.Sleep(750);
-
-                //sp.WriteLine("Z"); 
-                //Console.WriteLine(GetTimestamp() + " Wrote 'Z' over " + sp.PortName + "."); 
-                //Thread.Sleep(750); //0.5millisecond
-
-                //sp.WriteLine("T");
-                //Console.WriteLine(GetTimestamp() + " Wrote 'T' over " + sp.PortName + ".");
-                //Thread.Sleep(750); //0.5millisecond
             }
         }
 

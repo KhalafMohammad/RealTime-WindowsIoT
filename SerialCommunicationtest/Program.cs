@@ -3,6 +3,8 @@
 //IT ENTRFACES WITH THE SERIAL PORTS ON THE COMPUTER AND READS DATA FROM THE SERIAL PORT FROM THE ESP32
 //THE DATA IS THEN DECODED AND PRINTED TO THE CONSOLE
 // [PROTOTYPE]
+
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -16,10 +18,13 @@ namespace WinSerialCommunication
 {
     internal class Program
     {
-        private static StringBuilder dataBuffer = new StringBuilder(); // create een nieuwe stringbuilder object
+        private StringBuilder dataBuffer = new StringBuilder(); // create een nieuwe stringbuilder object
 
-        public static int position; // Current stepper position
+        
+        public static int current_position; //current
         public static int prev_position; //previous
+        // Initialize the serial port
+        public static Serial_Init Serial_Init = new Serial_Init();
         static void Main()
         {
             try
@@ -27,11 +32,9 @@ namespace WinSerialCommunication
                 //IntPtr aff_mask = (IntPtr)0xC0; // use only the first processor
                 // Set the process priority to high and the thread priority to time critical
                 RealTime.Process_managment(Process.GetCurrentProcess(), 0xC0, ProcessPriorityClass.RealTime);
-                RealTime.Threads_managment(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical);
+                RealTime.Threads_managment(Process.GetCurrentProcess(), ThreadPriorityLevel.Highest);
 
 
-                // Initialize the serial port
-                //Serial_Init Serial_Init = new Serial_Init();
 
                 // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
                 //Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
@@ -42,53 +45,15 @@ namespace WinSerialCommunication
 
                 //write to serial port [UNCOMMENT TO USE]            
                 //Write.Data_to_write(ref Serial_Init._serialport);
-
-                Exception exception;
-
-                const double L1 = 7.500;
-                const double L2 = 16.250;
-                const double D = 8.750;
-
-
-                const double tool_offset = 3.300;
-                double Xi = 4.375; // x mini
-                double Yi = 9.90; // y minimumm 10
-
-
-                TwoAxisRobot ZTIMK_Bot = new TwoAxisRobot(L1, L2, D);
-                (int motor1_angle, int motor2_angle) = ZTIMK_Bot.CalculateInverseKinematics(Xi, Yi);
-
-                //motor1 angle domain is -10 to 90
-                //motor2 angle domain is 90 to 190
-                Write.Steps_to_angle(1250);
-
-
-                if (motor1_angle > 190 || motor1_angle < 90)
-                {
-                    exception = new Exception("Motor 1 angle is out of domain");
-                }
-                else if (motor2_angle > 90 || motor2_angle < -10)
-                {
-                    exception = new Exception("Motor 2 angle is out of domain");
-                }
-                else
-                {
-                    exception = null;
-                }
-
-                if (exception != null)
-                {
-                    throw exception;
-                }
-                else
-                {
-                    Console.WriteLine("Motor 1 angle: " + motor1_angle + " Motor 2 angle: " + motor2_angle);
-
-                }
+                
+                Robot robot = new Robot();
+                robot.coordinates(14.7, 14.7);
+                robot.Run(); //ref Serial_Init._serialport
 
 
                 //Serial_Init._serialport.Close(); // close the serial port
                 Thread.Sleep(Timeout.Infinite);
+
             }
             catch (Exception ex)
             {
@@ -96,7 +61,7 @@ namespace WinSerialCommunication
 
             }
         }
-        private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
             try
             {
@@ -120,18 +85,35 @@ namespace WinSerialCommunication
             }
         }
 
-        private static void ProcessData(ref SerialPort sp)
+        private void ProcessData(ref SerialPort sp)
         {
-            string data = dataBuffer.ToString(); // get the data from the buffer
-            string[] dataParts = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries); // get data for the recieve buffer and split it into parts
+            string incoming_data = dataBuffer.ToString(); // get the data from the buffer
 
-            foreach (string part in dataParts) // loop door de data parts
+            string[] data_parts = incoming_data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string part in data_parts)
             {
-                if (int.TryParse(part, out int result)) //  CHECK als de data een integer is
+                string[] strings = part.Split(' ');
+                foreach (string str in strings)
                 {
-                    Console.WriteLine(temp_Write.GetTimestamp() + " Integer Received: <<< " + result);
-                }
+                    if (int.TryParse(str, out int result))
+                    {
+                        Console.WriteLine("Integer: " + result);
+                    }
+                    else
+                    {
+                        Console.WriteLine("String: " + str);
+                    }
 
+                    if (str == "m1")
+                    {
+                        current_position = result;
+                    }
+                    else if (str == "m2")
+                    {
+                        current_position = result;
+                    }
+                }
             }
             // Clear the buffer after processing
             dataBuffer.Clear();

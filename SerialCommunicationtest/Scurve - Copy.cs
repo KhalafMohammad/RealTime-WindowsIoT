@@ -15,8 +15,9 @@ using System.Runtime.InteropServices;
 namespace WinSerialCommunication
 {
 
-    internal class Scurve
+    internal class Scurve2
     {
+        #region declarations
 
         [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
@@ -38,8 +39,9 @@ namespace WinSerialCommunication
         public string motor;
         public long frequency;
         private Stopwatch watch = new Stopwatch(); // start stopwatch
+        #endregion declarations
 
-        public Scurve(double j_max, double j, int target, int positie, string motor)
+        public Scurve2(double j_max, double j, int target, int positie, string motor)
         {
 
             this.j_max = j_max;
@@ -54,7 +56,7 @@ namespace WinSerialCommunication
 
         }
 
-        public void Phase_one(ref SerialPort sp, int steps)
+        public void Move_motor(ref SerialPort sp, int steps)
         {
 
 
@@ -66,6 +68,7 @@ namespace WinSerialCommunication
             {
                 dir = 1;
             }
+            #region Phase 1
 #if _kernel_timer
 
             QueryPerformanceCounter(out long start1);
@@ -88,20 +91,7 @@ namespace WinSerialCommunication
 
                 double executionTimeMs = watch.Elapsed.TotalMilliseconds;
 
-                // Calculate remaining time to reach 1ms period
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    // Precise waiting for the remaining time
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-
-                }
+                Wait_Time(executionTimeMs);
             }
 #if _kernel_timer
 
@@ -109,21 +99,11 @@ namespace WinSerialCommunication
             double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
             Console.WriteLine($"Total time: {elapsed1:f5}ms");
 #endif
-        }
+            #endregion Phase 1
+
+            #region Phase 2
 
 
-
-        public void Phase_two(ref SerialPort sp, int steps)
-        {
-
-            if (steps < 0)
-            {
-                dir = -1;
-            }
-            else
-            {
-                dir = 1;
-            }
 #if _kernel_timer
             QueryPerformanceCounter(out long start1);
 #endif
@@ -144,20 +124,7 @@ namespace WinSerialCommunication
 
                 double executionTimeMs = watch.Elapsed.TotalMilliseconds;
 
-                // Calculate remaining time to reach 1ms period
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    // Precise waiting for the remaining time
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-
-                }
+                Wait_Time(executionTimeMs);
             }
 #if _kernel_timer
 
@@ -165,21 +132,10 @@ namespace WinSerialCommunication
             double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
             Console.WriteLine($"Total time: {elapsed1:f5}ms");
 #endif
-        }
+            #endregion Phase 2
 
+            #region Phase 3
 
-
-        public void Phase_three(ref SerialPort sp, int steps)
-        {
-
-            if (steps < 0)
-            {
-                dir = -1;
-            }
-            else
-            {
-                dir = 1;
-            }
 #if _kernel_timer
 
             QueryPerformanceCounter(out long start1);
@@ -191,11 +147,10 @@ namespace WinSerialCommunication
                 watch.Restart();
 
                 curr_freq = Math.Round(accelertion * (1 - (float)Math.Pow((1 - t / t_j), 2))); //0.50F
-                //Console.WriteLine($"Current frequency: {curr_freq}");
 
                 if (dir == -1)
                 {
-                    
+
                     sp.Write(motor + curr_freq + " L\n");
                 }
                 else
@@ -205,20 +160,7 @@ namespace WinSerialCommunication
 
                 double executionTimeMs = watch.Elapsed.TotalMilliseconds;
 
-                // Calculate remaining time to reach 1ms period
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    // Precise waiting for the remaining time
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-
-                }
+                Wait_Time(executionTimeMs);
             }
 #if _kernel_timer
             QueryPerformanceCounter(out long stop1);
@@ -226,9 +168,33 @@ namespace WinSerialCommunication
             Console.WriteLine($"Total time: {elapsed1:f5}ms");
             
 #endif
+            #endregion Phase 3
+
             sp.Write($"{motor} 0 R\n"); // end the motion profile by writing 0 to the motor
             sp.Write($"{motor} 0 L\n"); // 0 also means that the controller must send the motor position back to the PC
-
         }
+
+        private double Wait_Time(double executionTimeMs)
+        {
+            // Calculate remaining time to reach 1ms period
+            double remainingTimeMs = targetPeriodMs - executionTimeMs;
+
+            if (remainingTimeMs > 0)
+            {
+                // Precise waiting for the remaining time
+                var waitTimer = new Stopwatch();
+                waitTimer.Start();
+                while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
+                {
+                    Thread.SpinWait(1);
+                }
+                return waitTimer.Elapsed.TotalMilliseconds;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
     }
 }

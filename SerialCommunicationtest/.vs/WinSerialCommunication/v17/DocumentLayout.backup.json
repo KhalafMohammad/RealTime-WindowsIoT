@@ -7,12 +7,16 @@
       "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\write.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:write.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\read.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:read.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\realtime.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:realtime.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\kinematics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:kinematics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|c:\\users\\ztimohammadiot\\desktop\\applications\\consoleapplication1\\winserialcommunication\\serialcommunicationtest\\robot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A60B72D0-BBE5-45DB-90B3-A165690F4079}|WinSerialCommunication.csproj|solutionrelative:robot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -32,9 +36,23 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Program.cs*",
               "RelativeToolTip": "Program.cs*",
-              "ViewState": "AgIAAC4AAAAAAAAAAAAgwDYAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAAD4vzEAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-18T09:58:54.248Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Robot.cs",
+              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Robot.cs",
+              "RelativeDocumentMoniker": "Robot.cs",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Robot.cs",
+              "RelativeToolTip": "Robot.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAwwCgAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-09T10:53:18.485Z",
               "IsPinned": true,
               "EditorCaption": ""
             },
@@ -53,27 +71,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "RealTime.cs",
-              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\RealTime.cs",
-              "RelativeDocumentMoniker": "RealTime.cs",
-              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\RealTime.cs",
-              "RelativeToolTip": "RealTime.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABEAAAAAAAAAA==",
+              "Title": "Kinematics.cs",
+              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Kinematics.cs",
+              "RelativeDocumentMoniker": "Kinematics.cs",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Kinematics.cs",
+              "RelativeToolTip": "Kinematics.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAuwE8AAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-04T14:45:12.028Z",
+              "WhenOpened": "2024-12-09T13:29:25.558Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Write.cs",
-              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Write.cs",
-              "RelativeDocumentMoniker": "Write.cs",
-              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Write.cs",
-              "RelativeToolTip": "Write.cs",
-              "ViewState": "AgIAABQAAAAAAAAAAAAQwE0AAAA4AAAAAAAAAA==",
+              "Title": "Read.cs",
+              "DocumentMoniker": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Read.cs",
+              "RelativeDocumentMoniker": "Read.cs",
+              "ToolTip": "C:\\Users\\ZTIMohammadIOT\\Desktop\\Applications\\ConsoleApplication1\\WinSerialCommunication\\SerialCommunicationtest\\Read.cs",
+              "RelativeToolTip": "Read.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwAYAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-04T10:55:49.675Z",
+              "WhenOpened": "2024-12-09T08:54:31.035Z",
               "EditorCaption": ""
             }
           ]

@@ -73,7 +73,7 @@ namespace WinSerialCommunication
                         int steps = Angle_to_steps(motor1_angle);
                         Console.WriteLine(steps + " steps");
                         calculate_time(steps);
-                        Scurve2 Motor1 = new Scurve2(t1, t3, steps, position, "m1 ");
+                        Scurve Motor1 = new Scurve(t1, t3, steps, position, "m1 ");
                         Console.WriteLine($"{Motor1.t_j}, {Motor1.j_max}");
                         Motor1.Phase_one(ref sp, steps);
                         Motor1.Phase_two(ref sp, steps);

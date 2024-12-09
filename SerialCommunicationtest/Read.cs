@@ -26,7 +26,7 @@ namespace WinSerialCommunication
                 byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
                 sp.Read(buffer, 0, buffer.Length);
 
-                if (buffer.Length > 0 ) // check if the buffer is greater than 8 bytes
+                if (buffer.Length > 0) // check if the buffer is greater than 8 bytes
                 {
                     //string decode_string = Encoding.ASCII.GetString(buffer); // convert the buffer to string
                     //Console.WriteLine("string Received:" + decode_string);
