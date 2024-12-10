@@ -14,6 +14,7 @@ namespace WinSerialCommunication
         public double D { get; set; }
         public int motor1_position { get; set; }
         public int motor2_position { get; set; }
+
         public double M;
 
         public double N;
@@ -45,24 +46,23 @@ namespace WinSerialCommunication
             double sigma = Math.PI - theta - beta;
 
             double zeta = omega + gamma;
-            Console.WriteLine("zeta: " + zeta + " sigma: " + sigma + " N " + N + " M" + M );
-            
 
-            sigma = Math.Round(sigma * (180 / Math.PI));
 
-            zeta = Math.Round(zeta * (180 / Math.PI));
+            sigma = Math.Round(degrees(sigma));
 
-            //zeta = Math.Round(180 + zeta);
+            zeta = Math.Round(degrees(zeta));
 
-            M = Math.Round(M * (180 / Math.PI)); // joint angle motor 1 with zeta
 
-            N = Math.Round(N * (180 / Math.PI)); // joint angle motor 2 with sigma
-           
+            M = degrees(M); // joint angle motor 1 with zeta
 
-            Console.WriteLine($"zeta: {zeta} sigma: {sigma} M: {M} N: {N}");
+            N = degrees(N);// joint angle motor 2 with sigma
+
+
+            Console.WriteLine($"zeta: {zeta:f3} sigma: {sigma:f3} M: {M:f3} N: {N:f3}");
 
             // blender calculations and udp sending to blender
             //sigma = 180 + sigma;
+            //zeta = Math.Round(180 + zeta);
             //Console.WriteLine("xi: " + zeta + " sigma: " + sigma);
             //UDPServer udpServer = new();
             //string message = $"{zeta} {sigma}";
@@ -71,17 +71,23 @@ namespace WinSerialCommunication
 
             return ((int)zeta, (int)sigma); // xi for motor 1 sigma for motor 2
         }
-        public void CalculateForwardKinematics(double angle2, double angle1)
+
+        public (double computedX, double computedY) get_xy(double angle1, double angle2)
         {
-            double sigmaRad = angle1 * (2* Math.PI / 360);
-            double m1Rad = angle2 * (2 * Math.PI / 360);
+            double computedX = L1 * Math.Cos(radians(angle1)) + L2 * Math.Cos(radians(angle1 + angle2));
+            double computedY = L1 * Math.Sin(radians(angle1)) + L2 * Math.Sin(radians(angle1 + angle2));
 
-            double x1 = L1 * Math.Cos(sigmaRad);
-            double y1 = L1 * Math.Sin(sigmaRad);
+            return (computedX, computedY);
+        }
 
-            double x2 = x1 + L2 * Math.Cos(sigmaRad + m1Rad);
-            double y2 = y1 + L2 * Math.Sin(sigmaRad + m1Rad);
-            Console.WriteLine($"x1: {x1} y1: {y1} x2: {x2} y2: {y2}");
+        public double degrees(double radians)
+        {
+            return radians * 180 / Math.PI;
+        }
+
+        public double radians(double degrees)
+        {
+            return Math.PI * degrees / 180; ;
         }
     }
 }

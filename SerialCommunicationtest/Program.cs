@@ -29,6 +29,7 @@ namespace WinSerialCommunication
         {
             try
             {
+                Console.Title = "Robot: ZTIMK-bot prototype";
                 //IntPtr aff_mask = (IntPtr)0xC0; // use only the first processor
                 // Set the process priority to high and the thread priority to time critical
                 RealTime.Process_managment(Process.GetCurrentProcess(), 0xC0, ProcessPriorityClass.RealTime);
@@ -45,10 +46,13 @@ namespace WinSerialCommunication
 
                 //write to serial port [UNCOMMENT TO USE]            
                 //Write.Data_to_write(ref Serial_Init._serialport);
+
+                Robot newrobot = new();
+                newrobot.coordinates(4.375, 20);
+                newrobot.Run(); //ref Serial_Init._serialport
+
                 
-                Robot robot = new Robot();
-                robot.coordinates(14.7, 14.7);
-                robot.Run(); //ref Serial_Init._serialport
+
 
 
                 //Serial_Init._serialport.Close(); // close the serial port

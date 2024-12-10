@@ -30,8 +30,6 @@ namespace WinSerialCommunication
                 process.Threads[i].PriorityLevel = Threads_pri;
                 Console.WriteLine("Thread ID: " + process.Threads[i].Id + " Priority: " + process.Threads[i].PriorityLevel);
             }
-
-            
         }
 
         public static void manage_thread(Process process, int ThreadID, [Optional] ThreadPriorityLevel thread_pri, [Optional] IntPtr thread_aff_mask)
