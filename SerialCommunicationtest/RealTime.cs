@@ -4,8 +4,12 @@ using System.Runtime.InteropServices;
 
 namespace WinSerialCommunication
 {
+    
     internal class RealTime
     {
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
         public Process process = Process.GetCurrentProcess();
         public IntPtr processorAffinity = (IntPtr)0xF0; // use only the first processor
 
@@ -32,17 +36,25 @@ namespace WinSerialCommunication
             }
         }
 
-        public static void manage_thread(Process process, int ThreadID, [Optional] ThreadPriorityLevel thread_pri, [Optional] IntPtr thread_aff_mask)
+        public static void manage_thread(Process process, [Optional] ThreadPriorityLevel thread_pri, [Optional] IntPtr thread_aff_mask)
         {
-            for (int i = 0; i < process.Threads.Count; i++)
+            GetThreadID(out int threadid); // get the thread id
+
+            for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance
             {
-                if (process.Threads[i].Id == ThreadID)
+                if (process.Threads[i].Id == threadid) // check if the thread id is the same as the one we want to manage
                 {
                     process.Threads[i].ProcessorAffinity = thread_aff_mask;
                     process.Threads[i].PriorityLevel = thread_pri;
                     Console.WriteLine("Thread ID: " + process.Threads[i].Id + " Priority: " + process.Threads[i].PriorityLevel);
+
                 }
             }
         }
+
+        public static void GetThreadID(out int threadid)
+        {
+            threadid = (int)GetCurrentThreadId();
+        } 
     }
 }

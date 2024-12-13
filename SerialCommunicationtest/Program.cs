@@ -20,7 +20,7 @@ namespace WinSerialCommunication
     {
         private StringBuilder dataBuffer = new StringBuilder(); // create een nieuwe stringbuilder object
 
-        
+
         public static int current_position; //current
         public static int prev_position; //previous
         // Initialize the serial port
@@ -32,8 +32,8 @@ namespace WinSerialCommunication
                 Console.Title = "Robot: ZTIMK-bot prototype";
                 //IntPtr aff_mask = (IntPtr)0xC0; // use only the first processor
                 // Set the process priority to high and the thread priority to time critical
-                RealTime.Process_managment(Process.GetCurrentProcess(), 0xC0, ProcessPriorityClass.RealTime);
-                RealTime.Threads_managment(Process.GetCurrentProcess(), ThreadPriorityLevel.Highest);
+                RealTime.Process_managment(Process.GetCurrentProcess(), 0xc0, ProcessPriorityClass.Normal);
+                //RealTime.Threads_managment(Process.GetCurrentProcess(), ThreadPriorityLevel.Highest);
 
 
 
@@ -47,11 +47,23 @@ namespace WinSerialCommunication
                 //write to serial port [UNCOMMENT TO USE]            
                 //Write.Data_to_write(ref Serial_Init._serialport);
 
-                Robot newrobot = new();
-                newrobot.coordinates(4.375, 20);
-                newrobot.Run(); //ref Serial_Init._serialport
+                //Robot newrobot = new();
+                //newrobot.coordinates(4.375, 20);
+                //newrobot.Run(); //ref Serial_Init._serialport
 
-                
+
+                var newthread = new Thread(() =>
+                {
+
+                    TimeingTest timeingTest = new TimeingTest();
+                    RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0xc0);
+                    timeingTest.Send_Pulse();
+                });
+                newthread.Start();
+
+                //TimeingTest timeingTest = new TimeingTest();
+                //timeingTest.Send_Pulse();
+
 
 
 

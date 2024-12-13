@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Reflection.Metadata;
@@ -25,7 +26,6 @@ namespace WinSerialCommunication
         {
             //motor1 angle domain is -10 to 90
             //motor2 angle domain is 90 to 190
-            
             ZTIMK_Bot = new TwoAxisRobot(L1, L2, D);
             ZTIMK_Bot.motor1_position = 90;
             ZTIMK_Bot.motor2_position = 90;
@@ -50,7 +50,7 @@ namespace WinSerialCommunication
             Console.ResetColor();
         }
 
-        public void Run()// ref SerialPort sp
+        public void Run(ref SerialPort sp)// ref SerialPort sp
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("###############################################");
@@ -69,7 +69,7 @@ namespace WinSerialCommunication
             else if (Motor1_angle > 190 || Motor1_angle < 90 && Motor2_angle > 90 || Motor2_angle < -10)
             {
                 throw new MotorAngleException("Motor 1 and Motor 2 angle is out of domain");
-            } 
+            }
             else
             {
                 Console.WriteLine("Motor 1 angle: " + Motor1_angle + " Motor 2 angle: " + Motor2_angle);
@@ -78,21 +78,36 @@ namespace WinSerialCommunication
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("###############################################");
-            int Moto1_tomove_angle = ZTIMK_Bot.motor1_position - (Motor1_angle); // calculate the angle to move for motor 1
-            int Moto2_tomove_angle = ZTIMK_Bot.motor2_position - (Motor2_angle); // calculate the angle to move for motor 2
+            int Motor1_tomove_angle = ZTIMK_Bot.motor1_position - (Motor1_angle); // calculate the angle to move for motor 1
+            int Motor2_tomove_angle = ZTIMK_Bot.motor2_position - (Motor2_angle); // calculate the angle to move for motor 2
 
             m1_position = Motor1_angle; // update the current position of the motor
             m2_position = Motor2_angle; // update the current position of the motor
 
-            Console.WriteLine($"motor1 position To move = {Moto1_tomove_angle}\nmotor2 position To move = {Moto2_tomove_angle} ");
+            Console.WriteLine($"motor1 position To move = {Motor1_tomove_angle}\nmotor2 position To move = {Motor2_tomove_angle} ");
             ZTIMK_Bot.motor1_position = Motor1_angle; // update the current position of the motor
             ZTIMK_Bot.motor2_position = Motor2_angle; // update the current position of the motor
             Console.WriteLine($"motor1 after move = {ZTIMK_Bot.motor1_position}\nmotor2 after move = {ZTIMK_Bot.motor2_position}");
 
 
-            int m1_steps = Write.Angle_to_steps(Moto1_tomove_angle); // convert the angle to steps
-            int m2_steps = Write.Angle_to_steps(Moto2_tomove_angle); // convert the angle to steps
+            int m1_steps = Write.Angle_to_steps(Motor1_tomove_angle); // convert the angle to steps
+            int m2_steps = Write.Angle_to_steps(Motor2_tomove_angle); // convert the angle to steps
 
+            Thread m1_thread = new Thread(() =>
+            {
+                RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x80); // 0x80 core 8 affinity for motor1 
+                (double t1, double t2, double t3) = Write.calculate_time(m1_steps);
+                Scurve2 Motor1 = new Scurve2(t1, t3, m1_steps, m1_position, "m1 ");
+                Motor1.Move(ref sp, m1_steps); //error in this line
+            });
+
+            Thread m2_thread = new Thread(() =>
+            {
+                RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x40); // 0x40 core 7 affinity for motor2
+                (double t1, double t2, double t3) = Write.calculate_time(m2_steps);
+                Scurve2 Motor2 = new Scurve2(t1, t3, m2_steps, m2_position, "m2 ");
+                Motor2.Move(ref sp, m2_steps); //error in this line
+            }); 
 
             //Error_Compensate(position, steps, ref sp, "E1 "); // MotorID for motor1 instead of m1 use => E1 || For motor2 instead of m2 use => E2
             Console.WriteLine("###############################################");

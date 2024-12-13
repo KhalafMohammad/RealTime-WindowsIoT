@@ -56,7 +56,7 @@ namespace WinSerialCommunication
 
         }
 
-        public void Move_motor(ref SerialPort sp, int steps)
+        public void Move(ref SerialPort sp, int steps)
         {
 
 

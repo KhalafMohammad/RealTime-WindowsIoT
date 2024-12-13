@@ -29,55 +29,82 @@ namespace WinSerialCommunication
 
         public TimeingTest()
         {
+
             QueryPerformanceFrequency(out frequency);
-            Process process = Process.GetCurrentProcess();
-            process.ProcessorAffinity = 0xF00; // use only the last two processor
-            process.PriorityClass = ProcessPriorityClass.RealTime;
-            Console.WriteLine("Processor affinity: " + process.ProcessorAffinity);
-
-            for (int i = 0; i < process.Threads.Count; i++) // a for loop is better than foreach in terms of real-time performance 
-            {
-
-                process.Threads[i].PriorityLevel = ThreadPriorityLevel.TimeCritical;
-                process.Threads[i].ProcessorAffinity = 0xF00;
-
-            }
-        }
-
-        public void Send_Pulse(ref SerialPort sp, int steps)
-        {
-            var  watch = new Stopwatch(); // start stopwatch
-            //sp.Write("motor1 1000 L\n");
-            //sp.Write("motor1 1000 L\n");
-
-            for (int i = 0; i <= 416 ; i++)
-            {
-
-                watch.Restart();
-                string steps_string = i.ToString();
-                sp.Write("motor1 " + steps_string + " R\n");
-                Console.WriteLine(i);
-                double executionTimeMs = watch.Elapsed.TotalMilliseconds;
-
-                double remainingTimeMs = targetPeriodMs - executionTimeMs;
-
-                if (remainingTimeMs > 0)
-                {
-                    var waitTimer = new Stopwatch();
-                    waitTimer.Start();
-                    while (waitTimer.Elapsed.TotalMilliseconds < remainingTimeMs)
-                    {
-                        Thread.SpinWait(1);
-                    }
-                }
-                
-            }
-            sp.Write("motor1 0 R\n");
-            sp.Write("motor1 0 R\n");
-            Console.WriteLine("Done");
             
-
         }
 
+        public void Send_Pulse()
+        {
+            RealTime.GetThreadID(out int threadid);
+            Console.WriteLine("ss ID: " + threadid);
+
+
+
+            var watch = new Stopwatch(); // start stopwatch
+            int j = 0;
+            int k = 0;
+            double minTime = double.MaxValue;
+            double maxTime = double.MinValue;
+            double totalTime = 0;
+            int count = 0;
+
+            if (Stopwatch.IsHighResolution)
+            {
+                Console.WriteLine("Operations timed using the system's high-resolution performance counter.");
+            }
+            else
+            {
+                Console.WriteLine("Operations timed using the DateTime class.");
+            }
+
+            while (true)
+            {
+                //QueryPerformanceCounter(out start);
+                //for (int i = 0; i < 10; i++)
+                //{
+                //    j++;
+                //}
+                //k++;
+                //if (k > 10000000){ k = 0; }
+                //QueryPerformanceCounter(out stop);
+
+                //double elapsedticks = stop - start;
+                //elapsedTime = (elapsedticks / frequency) * 1_000_000;
+
+                //// Update min, max, and total time
+                //if (elapsedTime < minTime) minTime = elapsedTime;
+                //if (elapsedTime > maxTime) maxTime = elapsedTime;
+                //totalTime += elapsedTime;
+                //count++;
+
+                //double avgTime = totalTime / count;
+
+                //Console.WriteLine($"Execution time: {elapsedTime} us, Min time: {minTime:f3} us, Max time: {maxTime:f3} us, Avg time: {avgTime:f3} us");
+
+               
+            }
+
+            //watch.Start();
+            //sp.Write("motor1 1000 L\n");
+            //sp.Write("motor1 1000 L\n");
+            //watch.Stop();
+            //elapsedTime = watch.Elapsed.TotalMilliseconds;
+            //sleepTime = targetPeriodMs - elapsedTime;
+            //double executionTimeMs = watch.Elapsed.TotalMilliseconds;
+
+            //double remainingTimeMs = targetPeriodMs - executionTimeMs;
+            //if (sleepTime > 0)
+            //{
+            //    timeToSleep = sleepTime;
+            //    watch.Reset();
+            //    watch.Start();
+            //    while (watch.Elapsed.TotalMilliseconds < timeToSleep)
+            //    {
+            //        // do nothing
+            //    }
+            //    watch.Stop();
+            //}
+        }
     }
 }
