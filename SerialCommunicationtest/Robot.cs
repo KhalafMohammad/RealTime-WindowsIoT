@@ -93,23 +93,18 @@ namespace WinSerialCommunication
             int m1_steps = Write.Angle_to_steps(Motor1_tomove_angle); // convert the angle to steps
             int m2_steps = Write.Angle_to_steps(Motor2_tomove_angle); // convert the angle to steps
 
-            Thread m1_thread = new Thread(() =>
-            {
-                RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x80); // 0x80 core 8 affinity for motor1 
-                (double t1, double t2, double t3) = Write.calculate_time(m1_steps);
-                Scurve2 Motor1 = new Scurve2(t1, t3, m1_steps, m1_position, "m1 ");
-                Motor1.Move(ref sp, m1_steps); //error in this line
-            });
 
-            Thread m2_thread = new Thread(() =>
-            {
-                RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x40); // 0x40 core 7 affinity for motor2
-                (double t1, double t2, double t3) = Write.calculate_time(m2_steps);
-                Scurve2 Motor2 = new Scurve2(t1, t3, m2_steps, m2_position, "m2 ");
-                Motor2.Move(ref sp, m2_steps); //error in this line
-            }); 
+            RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x80); // 0x80 core 8 affinity for motor1 
+            (double t1, double t2, double t3) = Write.calculate_time(m1_steps);
+            Scurve2 Motor1 = new Scurve2(t1, t3, m1_steps, m1_position, "m1 ");
+            Motor1.Move(ref sp, m1_steps); //error in this line
 
-            //Error_Compensate(position, steps, ref sp, "E1 "); // MotorID for motor1 instead of m1 use => E1 || For motor2 instead of m2 use => E2
+            RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x40); // 0x40 core 7 affinity for motor2
+            ( t1,  t2,  t3) = Write.calculate_time(m2_steps);
+            Scurve2 Motor2 = new Scurve2(t1, t3, m2_steps, m2_position, "m2 ");
+            Motor2.Move(ref sp, m2_steps); //error in this line
+
+
             Console.WriteLine("###############################################");
             Console.ResetColor();
         }

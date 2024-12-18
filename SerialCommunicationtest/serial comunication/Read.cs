@@ -14,16 +14,19 @@ namespace WinSerialCommunication
         public static StringBuilder dataBuffer = new StringBuilder(); // create een nieuwe stringbuilder object
         public static int position; // Current stepper position
         public static int prev_position; //previous
+        public static string data;
+        public static string[] dataParts; //current
 
 
         public static void Data_to_read(ref SerialPort sp)
         {
 
+            byte[] buffer;
             sp.ReadTimeout = 1000; // set the read timeout to 1 second
             while (true)
             {
 
-                byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
+                buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
                 sp.Read(buffer, 0, buffer.Length);
 
                 if (buffer.Length > 0) // check if the buffer is greater than 8 bytes
@@ -33,14 +36,17 @@ namespace WinSerialCommunication
                     dataBuffer.Append(Encoding.UTF8.GetString(buffer)); // append the data to the buffer
                     ProcessData(); // process the data
                 }
-            }
+                buffer = null; // clear the buffer
 
+            }
         }
+
+        
 
         private static void ProcessData()
         {
-            string data = dataBuffer.ToString(); // get the data from the buffer
-            string[] dataParts = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries); // get data for the recieve buffer and split it into parts
+            data = dataBuffer.ToString(); // get the data from the buffer
+            dataParts = data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries); // get data for the recieve buffer and split it into parts
 
             foreach (string part in dataParts) // loop door de data parts
             {
@@ -56,7 +62,9 @@ namespace WinSerialCommunication
             }
 
             // Clear the buffer after processing
+            dataParts = null;
             dataBuffer.Clear();
+
         }
 
     }

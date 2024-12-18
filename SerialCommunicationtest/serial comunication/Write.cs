@@ -39,8 +39,8 @@ namespace WinSerialCommunication
                     //sp.Write(value_string);
 
                     double tool_offset = 3.300;
-                    double Xi = 7.500;
-                    double Yi = 5.350 + tool_offset; // y minimumm 10
+                    double Xi = 4.375; //4.375, 20
+                    double Yi = 20; // y minimumm 10 + tool_offset
 
 
                     TwoAxisRobot ZTIMK_Bot = new TwoAxisRobot(75.00, 162.50, 87.50);
@@ -104,7 +104,7 @@ namespace WinSerialCommunication
         }
         public static void data(ref SerialPort sp, int data)
         {
-            byte[] value_bytes = new byte[2];
+            byte[] value_bytes = new byte[6];
             value_bytes[0] = (byte)((int)data >> 8); // shift 8 bits to the right
             value_bytes[1] = (byte)((int)data & 0xFF); // bitwise AND with 0xFF
             sp.Write(value_bytes, 0, 2); // write 1

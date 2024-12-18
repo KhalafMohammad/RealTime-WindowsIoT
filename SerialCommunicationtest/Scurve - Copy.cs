@@ -17,7 +17,6 @@ namespace WinSerialCommunication
 
     internal class Scurve2
     {
-        #region declarations
 
         [DllImport("kernel32.dll")]
         public static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
@@ -35,11 +34,10 @@ namespace WinSerialCommunication
         public int positie; // incoming position from the serial port
         private int dir;
         const double targetPeriodMs = 1.000;
-        const double error = 0.005f;
+        const double error = 0.000f;
         public string motor;
         public long frequency;
         private Stopwatch watch = new Stopwatch(); // start stopwatch
-        #endregion declarations
 
         public Scurve2(double j_max, double j, int target, int positie, string motor)
         {
@@ -49,15 +47,17 @@ namespace WinSerialCommunication
             this.target = target;
             this.positie = positie;
             this.motor = motor;
-#if _kernel_timer
 
-            QueryPerformanceFrequency(out long frequency);
-#endif
 
         }
 
         public void Move(ref SerialPort sp, int steps)
         {
+            //sp.Write(motor + "0 R\n");
+#if _kernel_timer
+
+            QueryPerformanceFrequency(out long frequency);
+#endif
 
 
             if (steps < 0) // ditermin the direction of the motor
@@ -73,7 +73,7 @@ namespace WinSerialCommunication
 
             QueryPerformanceCounter(out long start1);
 #endif
-            for (double t = 0.000f; t <= t_j; t += dt)
+            for (double t = 0.001f; t < t_j; t += dt)
             {
 
                 watch.Restart();
@@ -105,10 +105,10 @@ namespace WinSerialCommunication
 
 
 #if _kernel_timer
-            QueryPerformanceCounter(out long start1);
+            QueryPerformanceCounter(out start1);
 #endif
 
-            for (double t = 0; t <= j_max + error; t += dt)
+            for (double t = 0; t < j_max - error; t += dt)
             {
 
                 watch.Restart();
@@ -128,8 +128,8 @@ namespace WinSerialCommunication
             }
 #if _kernel_timer
 
-            QueryPerformanceCounter(out long stop1);
-            double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
+            QueryPerformanceCounter(out  stop1);
+             elapsed1 = (stop1 - start1) * 1000.0 / frequency;
             Console.WriteLine($"Total time: {elapsed1:f5}ms");
 #endif
             #endregion Phase 2
@@ -138,10 +138,10 @@ namespace WinSerialCommunication
 
 #if _kernel_timer
 
-            QueryPerformanceCounter(out long start1);
+            QueryPerformanceCounter(out  start1);
 #endif
 
-            for (double t = t_j; t >= 0; t -= dt)
+            for (double t = t_j; t > 0; t -= dt)
             {
 
                 watch.Restart();
@@ -163,15 +163,14 @@ namespace WinSerialCommunication
                 Wait_Time(executionTimeMs);
             }
 #if _kernel_timer
-            QueryPerformanceCounter(out long stop1);
-            double elapsed1 = (stop1 - start1) * 1000.0 / frequency;
+            QueryPerformanceCounter(out  stop1);
+             elapsed1 = (stop1 - start1) * 1000.0 / frequency;
             Console.WriteLine($"Total time: {elapsed1:f5}ms");
             
 #endif
             #endregion Phase 3
 
             sp.Write($"{motor} 0 R\n"); // end the motion profile by writing 0 to the motor
-            sp.Write($"{motor} 0 L\n"); // 0 also means that the controller must send the motor position back to the PC
         }
 
         private double Wait_Time(double executionTimeMs)
@@ -195,6 +194,5 @@ namespace WinSerialCommunication
                 return 0;
             }
         }
-
     }
 }

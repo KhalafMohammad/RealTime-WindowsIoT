@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinSerialCommunication
 {
@@ -30,12 +31,13 @@ namespace WinSerialCommunication
         public TimeingTest()
         {
 
-            QueryPerformanceFrequency(out frequency);
-            
+
         }
 
-        public void Send_Pulse()
+        public void Send_Pulse(ref SerialPort sp)
         {
+            QueryPerformanceFrequency(out frequency);
+
             RealTime.GetThreadID(out int threadid);
             Console.WriteLine("ss ID: " + threadid);
 
@@ -57,33 +59,45 @@ namespace WinSerialCommunication
             {
                 Console.WriteLine("Operations timed using the DateTime class.");
             }
+            ushort motor1 = 1000;
+            char motor1_direction = 'L';
+            ushort motor2 = 1000;
+            char motor2_direction = 'L';
+            //while (true)
+            //{
+            byte[] value_bytes = new byte[6];
+            value_bytes[0] = (byte)((int)motor1 >> 8); // shift 8 bits to the right
+            value_bytes[1] = (byte)((int)motor1 & 0xFF); // bitwise AND with 0xFF
+            value_bytes[2] = (byte)((motor1_direction)); // write 1
+            value_bytes[3] = (byte)((int)motor2 >> 8); // shift 8 bits to the right
+            value_bytes[4] = (byte)((int)motor2 & 0xFF); // bitwise AND with 0xFF
+            value_bytes[5] = (byte)((motor2_direction)); // write 1
 
-            while (true)
-            {
-                //QueryPerformanceCounter(out start);
-                //for (int i = 0; i < 10; i++)
-                //{
-                //    j++;
-                //}
-                //k++;
-                //if (k > 10000000){ k = 0; }
-                //QueryPerformanceCounter(out stop);
+            QueryPerformanceCounter(out start);
+            sp.Write("m1 1000 R\n"); // write 1
+            //string valueString = BitConverter.ToString(value_bytes).Replace("-", " ");
+            //Console.WriteLine(Write.GetTimestamp() + " Wrote " + valueString + " over " + sp.PortName + ".");
+            QueryPerformanceCounter(out stop);
 
-                //double elapsedticks = stop - start;
-                //elapsedTime = (elapsedticks / frequency) * 1_000_000;
 
-                //// Update min, max, and total time
-                //if (elapsedTime < minTime) minTime = elapsedTime;
-                //if (elapsedTime > maxTime) maxTime = elapsedTime;
-                //totalTime += elapsedTime;
-                //count++;
+            double elapsed1 = (stop - start) * 1000.0 / frequency;
+            Console.WriteLine($"Total time: {elapsed1:f5}ms");
 
-                //double avgTime = totalTime / count;
+            //double elapsedticks = stop - start;
+            //elapsedTime = (elapsedticks / frequency) * 1000;
 
-                //Console.WriteLine($"Execution time: {elapsedTime} us, Min time: {minTime:f3} us, Max time: {maxTime:f3} us, Avg time: {avgTime:f3} us");
+            //// Update min, max, and total time
+            //if (elapsedTime < minTime) minTime = elapsedTime;
+            //if (elapsedTime > maxTime) maxTime = elapsedTime;
+            //totalTime += elapsedTime;
+            //count++;
 
-               
-            }
+            //double avgTime = totalTime / count;
+
+            //Console.WriteLine($"Execution time: {elapsedTime} us, Min time: {minTime:f3} us, Max time: {maxTime:f3} us, Avg time: {avgTime:f3} us");
+
+
+            //}
 
             //watch.Start();
             //sp.Write("motor1 1000 L\n");
