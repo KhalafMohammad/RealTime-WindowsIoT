@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO.Ports;
 
 namespace WinSerialCommunication
 {
@@ -22,6 +15,15 @@ namespace WinSerialCommunication
         public static int m1_position; // Current stepper1 position
         public static int m2_position; // Current stepper2 position
 
+
+        public static double steps_per_angle = 5000.00f / 360.0f;
+        public static bool recieve_flag = true;
+        public static int value;
+        public static int position;
+        public static double t1;
+        public static double t2;
+        public static double t3;
+
         public Robot()
         {
             //motor1 angle domain is -10 to 90
@@ -31,6 +33,11 @@ namespace WinSerialCommunication
             ZTIMK_Bot.motor2_position = 90;
         }
 
+        /// <summary>
+        /// Calculate the motor angles and the movement
+        /// </summary>
+        /// <param name="x"> x coordinates </param>
+        /// <param name="y"> y coordinates </param>
         public void coordinates(double x, double y)
         {
 
@@ -50,7 +57,7 @@ namespace WinSerialCommunication
             Console.ResetColor();
         }
 
-        public void Run(ref SerialPort sp)// ref SerialPort sp
+        public void Run()// ref SerialPort sp
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("###############################################");
@@ -90,25 +97,43 @@ namespace WinSerialCommunication
             Console.WriteLine($"motor1 after move = {ZTIMK_Bot.motor1_position}\nmotor2 after move = {ZTIMK_Bot.motor2_position}");
 
 
-            int m1_steps = Write.Angle_to_steps(Motor1_tomove_angle); // convert the angle to steps
-            int m2_steps = Write.Angle_to_steps(Motor2_tomove_angle); // convert the angle to steps
+            int m1_steps = Angle_to_steps(Motor1_tomove_angle); // convert the angle to steps
+            (double t1, double t2, double t3) = calculate_time(m1_steps); // calculate the time for the motor to move
+            Scurve motor1 = new Scurve(t1, t3, m1_steps); // create a new instance of the motor
+            (int[] motor1_values, char motor1_dir) = motor1.Get_curve_values(); // get the values and direction of the motor
 
 
-            RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x80); // 0x80 core 8 affinity for motor1 
-            (double t1, double t2, double t3) = Write.calculate_time(m1_steps);
-            Scurve2 Motor1 = new Scurve2(t1, t3, m1_steps, m1_position, "m1 ");
-            Motor1.Move(ref sp, m1_steps); //error in this line
+            int m2_steps = Angle_to_steps(Motor2_tomove_angle); // convert the angle to steps
+            (t1, t2, t3) = calculate_time(m2_steps); // calculate the time for the motor to move 
+            Scurve motor2 = new Scurve(t1, t3, m2_steps); // create a new instance of the motor
+            (int[] motor2_values, char motor2_dir) = motor2.Get_curve_values(); // get the values and direction of the motor
 
-            RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x40); // 0x40 core 7 affinity for motor2
-            ( t1,  t2,  t3) = Write.calculate_time(m2_steps);
-            Scurve2 Motor2 = new Scurve2(t1, t3, m2_steps, m2_position, "m2 ");
-            Motor2.Move(ref sp, m2_steps); //error in this line
+
+
+            PacketList packetList = new PacketList();
+            packetList.Test(motor1_values, motor1_dir, motor2_values, motor2_dir);
+
+
+            //(double t1, double t2, double t3) = Write.calculate_time(m1_steps);
+            //Scurve2 Motor1 = new Scurve2(t1, t3, m1_steps, m1_position, "m1 ");
+            //Motor1.Move(ref sp, m1_steps); //error in this line
+
+            //( t1,  t2,  t3) = Write.calculate_time(m2_steps);
+            //Scurve2 Motor2 = new Scurve2(t1, t3, m2_steps, m2_position, "m2 ");
+            //Motor2.Move(ref sp, m2_steps); //error in this line
 
 
             Console.WriteLine("###############################################");
             Console.ResetColor();
         }
 
+        /// <summary>
+        ///     Convert the angle to steps
+        /// <param name="current_position"></param>
+        /// <param name="initial_position"></param>
+        /// <param name="sp"></param>
+        /// <param name="motorID"></param>
+        /// </summary>
         public void Error_Compensate(int current_position, int initial_position, ref SerialPort sp, string motorID)
         {
             if (current_position > initial_position || current_position < initial_position)
@@ -132,7 +157,72 @@ namespace WinSerialCommunication
             }
         }
 
+        /// <summary>
+        /// Get the current time in HH:MM:SS:FFF format to print out milliseconds too
+        /// <returns></returns>
+        ///</summary>
+        public static string GetTimestamp() // get the current time in HH:MM:SS:FFF format to print out milliseconds too 
+        {
+            return DateTime.Now.ToString("HH:mm:ss:fff");
+        }
+        /// <summary>
+        ///     Write data to the serial port
+        /// </summary>
+        /// <param name="sp"></param>
+        /// <param name="data"></param>
+        public static void Data(ref SerialPort sp, int data)
+        {
+            byte[] value_bytes = new byte[2];
+            value_bytes[0] = (byte)((int)data >> 8); // shift 8 bits to the right
+            value_bytes[1] = (byte)((int)data & 0xFF); // bitwise AND with 0xFF
+            sp.Write(value_bytes, 0, 2); // write 1
+            Console.WriteLine(GetTimestamp() + " Wrote " + data + " over" + sp.PortName + ".");
+        }
 
+        /// <summary>
+        ///     Convert the angle to steps
+        /// </summary>
+        /// <param name="steps"></param>
+        /// <returns></returns>
+        public static (double t1, double t2, double t3) calculate_time(int steps)
+        {
+            int transmit_speed = 2000;
+            // 0.001 = 1ms per step 
+            int value1 = Math.Abs(steps);
+            double t_j = (double)value1 / transmit_speed;
+            t1 = t_j / 3;
+            t1 = Math.Round(t1, 3);
+            t3 = t_j / 3;
+            t3 = Math.Round(t3, 3);
+            t2 = t3 + t1;
+            Console.WriteLine($"t_j: {t_j:f4} t1:{t1:f4} , t2:{t2:f4}, t3:{t3:f4} ");
+            //double t_j = Math.Sqrt((double)value / 2000);
+            //Console.WriteLine("t_j: " + t_j);
+            return (t1, t2, t3);
+        }
+
+        /// <summary>
+        ///    Convert the angle to steps
+        /// </summary>
+        /// <param name="angle"></param>
+        /// <returns></returns>
+        public static int Angle_to_steps(int angle)
+        {
+
+            return (int)(Math.Round(angle * steps_per_angle));
+        }
+
+        /// <summary>
+        ///     Convert the steps to angle
+        /// </summary>
+        /// <param name="steps"></param>
+        /// <returns></returns>
+        public static int Steps_to_angle(int steps)
+        {
+
+            Console.WriteLine(Math.Round(steps / steps_per_angle));
+            return (int)(Math.Round(steps / steps_per_angle));
+        }
     }
 
     [Serializable]

@@ -11,31 +11,20 @@ namespace WinSerialCommunication
 {
     internal class Serial_Init
     {
-        public SerialPort _serialport = new SerialPort("COM3", 115200, Parity.None, 8, StopBits.One);
+        public SerialPort sp = new SerialPort("COM5", 115200, Parity.None, 8, StopBits.One);
 
         public void serial_init()
         {
             try
             {
-                // get a list of available ports
-                var ports = SerialPort.GetPortNames();
-
-                // display the list to the console
-                //foreach (string port in ports)
-                //{
-
-                //    Console.WriteLine($" {port}");
-                //}
-                //Thread readthread = new Thread(Read);
-                // create a new SerialPort object with default settings and 1khz
 
                 // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT
-                _serialport.WriteTimeout = 1000;
-                _serialport.ReadTimeout = 1000;
+                sp.WriteTimeout = -1;
+                sp.ReadTimeout = -1;
 
                 // open serial port
-                _serialport.Open();
-                Console.WriteLine("connected to serial port " + _serialport.PortName);
+                sp.Open();
+                Console.WriteLine("connected to serial port " + sp.PortName);
 
             }
             catch (Exception ex)

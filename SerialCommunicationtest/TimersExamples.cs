@@ -13,10 +13,8 @@ using System.Runtime.InteropServices;
 namespace WinSerialCommunication
 {
 
-
-    internal class Newclass
+    internal class TimerTester
     {
-
 
         [DllImport("Kernel32.dll")]
         public static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
@@ -38,9 +36,8 @@ namespace WinSerialCommunication
 
             var stopwatch = new Stopwatch();
 
-            const double targetPeriodMs = 1.0;
-            double targetPeriodnt = 1000.0 / frequency; // / frequency
-            Console.WriteLine($"Target period: {targetPeriodnt}ms, frequency: {frequency}");
+            const double targetPeriodMs = 1.0000;
+
             stopwatch.Start();
             for (int i = 0; i < iterations; i++)
             {
@@ -57,26 +54,27 @@ namespace WinSerialCommunication
 
                 QueryPerformanceCounter(out long end);
 
-                double elapsed = (end - start) * targetPeriodnt;
+                double elapsed = (end - start) * 1000.0 / frequency;
                 double remainingTimeMs = targetPeriodMs - elapsed;
                 double old_elapsed = elapsed;
 
 
                 if (remainingTimeMs > 0)
                 {
-                    while ((end - start) * targetPeriodnt < remainingTimeMs)
+                    while (elapsed < remainingTimeMs)
                     {
-                        
-                        Thread.SpinWait(1);
                         QueryPerformanceCounter(out end);
-                        //elapsed = (end - start) * targetPeriodnt;
+                        Thread.SpinWait(1);
+                        elapsed = (end - start) * 1000.0 / frequency;
                     }
                     QueryPerformanceCounter(out long Nend);
-                    double newelapsed = (Nend - start) * targetPeriodnt;
+                    double newelapsed = (Nend - start) * 1000.0 / frequency;
                     Console.WriteLine($"Iteration {result:f2}:  Target delay {targetPeriodMs}ms, Old elapsed {old_elapsed:f5}ms, Waited {remainingTimeMs:f5}, After delay {elapsed:f5}ms, Operation time {newelapsed:f5}");
                 }
 
 
+                // another way to wait for the remaining time
+                //#####################################################################################
 
                 // Calculate how long the operation took
                 //double executionTimeMs = stopwatch.Elapsed.TotalMilliseconds;
@@ -95,14 +93,12 @@ namespace WinSerialCommunication
                 //    }
                 //}
 
-                //  Optional: Print timing information every 100 iterations
-                //if (i % 100 == 0)
-                //{
-                //    Console.WriteLine($"Iteration {i}: Operation took {executionTimeMs:F3}ms, " +
-                //                    $"Waited {Math.Max(0, remainingTimeMs):F3}ms");
-                //}
+                //#####################################################################################
+
+
+                
             }
-            
+
             Console.WriteLine($"Total time: {stopwatch.Elapsed.TotalMilliseconds/1000:f2}s");
         }
     }

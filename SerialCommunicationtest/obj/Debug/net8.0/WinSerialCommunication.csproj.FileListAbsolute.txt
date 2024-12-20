@@ -71,3 +71,16 @@ C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommun
 C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\obj\Debug\net8.0\WinSerialCommunication.pdb
 C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\obj\Debug\net8.0\WinSerialCommunication.genruntimeconfig.cache
 C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\obj\Debug\net8.0\ref\WinSerialCommunication.dll
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\System.Windows.Extensions.dll
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\android-arm\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\android-arm64\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\android-x64\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\android-x86\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\linux-bionic-arm64\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\linux-bionic-x64\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\linux-musl-arm\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\linux-musl-arm64\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\linux-musl-x64\native\libSystem.IO.Ports.Native.so
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\maccatalyst-arm64\native\libSystem.IO.Ports.Native.dylib
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\maccatalyst-x64\native\libSystem.IO.Ports.Native.dylib
+C:\Users\ZTIMohammadIOT\Desktop\Applications\ConsoleApplication1\WinSerialCommunication\SerialCommunicationtest\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Windows.Extensions.dll

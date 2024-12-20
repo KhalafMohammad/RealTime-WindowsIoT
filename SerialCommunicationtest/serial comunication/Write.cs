@@ -66,19 +66,19 @@ namespace WinSerialCommunication
                         throw exception;
 
                     }
-                    else
-                    {
-                        Console.WriteLine("Motor 1 angle: " + motor1_angle + " Motor 2 angle: " + motor2_angle);
+                    //else
+                    //{
+                    //    Console.WriteLine("Motor 1 angle: " + motor1_angle + " Motor 2 angle: " + motor2_angle);
 
-                        int steps = Angle_to_steps(motor1_angle);
-                        Console.WriteLine(steps + " steps");
-                        calculate_time(steps);
-                        Scurve Motor1 = new Scurve(t1, t3, steps, position, "m1 ");
-                        Console.WriteLine($"{Motor1.t_j}, {Motor1.j_max}");
-                        Motor1.Phase_one(ref sp, steps);
-                        Motor1.Phase_two(ref sp, steps);
-                        Motor1.Phase_three(ref sp, steps);
-                    }
+                    //    int steps = Angle_to_steps(motor1_angle);
+                    //    Console.WriteLine(steps + " steps");
+                    //    calculate_time(steps);
+                    //    Scurvev1 Motor1 = new Scurvev1(t1, t3, steps, position, "m1 ");
+                    //    Console.WriteLine($"{Motor1.t_j}, {Motor1.j_max}");
+                    //    Motor1.Phase_one(ref sp, steps);
+                    //    Motor1.Phase_two(ref sp, steps);
+                    //    Motor1.Phase_three(ref sp, steps);
+                    //}
 
                     //Console.WriteLine(Angle_to_steps(value) + " steps");
                     //calculate_time(Angle_to_steps(value));
@@ -98,47 +98,6 @@ namespace WinSerialCommunication
             }
         }
 
-        public static string GetTimestamp() // get the current time in HH:MM:SS:FFF format to print out milliseconds too 
-        {
-            return DateTime.Now.ToString("HH:mm:ss:fff");
-        }
-        public static void data(ref SerialPort sp, int data)
-        {
-            byte[] value_bytes = new byte[6];
-            value_bytes[0] = (byte)((int)data >> 8); // shift 8 bits to the right
-            value_bytes[1] = (byte)((int)data & 0xFF); // bitwise AND with 0xFF
-            sp.Write(value_bytes, 0, 2); // write 1
-            Console.WriteLine(Write.GetTimestamp() + " Wrote " + data + " over" + sp.PortName + ".");
-        }
-        public static (double t1, double t2, double t3) calculate_time(int steps)
-        {
-            int transmit_speed = 2000;
-            // 0.001 = 1ms per step 
-            int value1 = Math.Abs(steps);
-            double t_j = (double)value1 / transmit_speed;
-            t1 = t_j / 3;
-            t1 = Math.Round(t1, 3);
-            t3 = t_j / 3;
-            t3 = Math.Round(t3, 3);
-            t2 = t3 + t1;
-            Console.WriteLine($"t_j: {t_j:f4} t1:{t1:f4} , t2:{t2:f4}, t3:{t3:f4} ");
-            //double t_j = Math.Sqrt((double)value / 2000);
-            //Console.WriteLine("t_j: " + t_j);
-            return (t1, t2, t3);
-        }
-
-
-        public static int Angle_to_steps(int angle)
-        {
-            
-            return (int)(Math.Round(angle * steps_per_angle));
-        }
-
-        public static int Steps_to_angle(int steps)
-        {
-            
-            Console.WriteLine(Math.Round(steps / steps_per_angle));
-            return (int)(Math.Round(steps / steps_per_angle));
-        }
+       
     }
 }
