@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WinSerialCommunication
 {
@@ -25,39 +26,52 @@ namespace WinSerialCommunication
         private int m2_value_int;
         private int curr_packet_size = 7;
         const double targetPeriodMs = 1.000;
-        public Serial_Init Serial_Init = new Serial_Init();
         private static StringBuilder dataBuffer = new StringBuilder(); // create een nieuwe stringbuilder object
+        private static int m1_curr_pos;
+        private static int m2_curr_pos;
+        private static string m2_dir;
+        private static int error;
+        private static int m1_steps;
+        private static int m2_steps;
 
 
+        public PacketList()
+        {
+
+        }
 
         public void Test(int[] motor1_values, char motor1_dir, int[] motor2_values, char motor2_dir)
         {
-            Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
-            Serial_Init.serial_init(); // initialize the serial port
+            //Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
+            double motor1_len = motor1_values.Length;
+            double motor2_len = motor2_values.Length;
+
+            m1_steps = (int)(motor1_len / 1000 * 2000);
+            m2_steps = (int)(motor2_len / 1000 * 2000);
+
+            Console.WriteLine("Motor 1 steps: " + m1_steps);
+            Console.WriteLine("Motor 2 steps: " + m2_steps);
 
             combined_values_array = Combine_values(motor1_values, motor1_dir, motor2_values, motor2_dir).ToArray();
 
-
-            Stopwatch sw = new Stopwatch();
-            //send every 7 bytes
-            while (true)
+            Thread thread = new Thread(() =>
             {
-                Thread thread = new Thread(() =>
-                {
-                    RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x80);
+                RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0xC0);
 
-                    Transmit(combined_values_array);
-                });
-                thread.Start();
-                Thread.Sleep(1000);
-            }
+                Transmit(combined_values_array);
+            });
+            //thread.Start();
+            //thread.Join();
+            //Get_Current_Position();
 
-            //Print_values(combined_values_array, "D");
+            //byte[] stop_array = { 0x00, 0x00, 0x4E, 0x00, 0x00, 0x4E, 0x3B };
+            //Serial_Init.sp.Write(stop_array, 0, 7);
+            Print_values(combined_values_array, "D");
 
 
-            Serial_Init.sp.Close(); // close the serial port
-            Serial_Init.sp.Dispose(); // dispose the serial port
+            //Serial_Init.sp.Dispose(); // dispose the serial port
         }
 
         /// <summary>
@@ -89,6 +103,7 @@ namespace WinSerialCommunication
                 // get the values from the motor2 arrays
                 motor2_itr = (ushort)(i < motor2_values.Length ? motor2_values[i] : 0);
                 motor2_direction = i < motor2_values.Length ? motor2_dir : 'N';
+
 
                 // combine the values
                 m1_value_bytes[0] = (byte)((int)motor1_itr >> 8); // shift 8 bits to the right
@@ -182,14 +197,15 @@ namespace WinSerialCommunication
                     m2_value_int = (combined_values_array[i + 3] << 8) | combined_values_array[i + 4];
 
 
-                     motor1_direction = (char)combined_values_array[i + 2];
-                     motor2_direction = (char)combined_values_array[i + 5];
-                     char packet_end = (char)combined_values_array[i + 6];
+                    motor1_direction = (char)combined_values_array[i + 2];
+                    motor2_direction = (char)combined_values_array[i + 5];
+                    char packet_end = (char)combined_values_array[i + 6];
 
                     Console.WriteLine($"[{i}] : [{m1_value_int}, {motor1_direction}] , [{m2_value_int}, {motor2_direction}]{packet_end}");
                     Thread.Sleep(1); // sleep for 1ms
                 }
-            }else if (vals.Equals("X"))
+            }
+            else if (vals.Equals("X"))
             {
                 for (int i = 0; i < combined_values_array.Length; i += curr_packet_size)
                 {
@@ -216,6 +232,9 @@ namespace WinSerialCommunication
         /// </summary>
         private void Transmit(byte[] combined_values_array)
         {
+            Serial_Init.serial_init(); // initialize the serial port
+            //Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
             Stopwatch sw = new Stopwatch();
             // send every 7 bytes
             sw.Reset();
@@ -226,7 +245,7 @@ namespace WinSerialCommunication
                  * THIS IS THE CODE TO DECODE THE BYTES IN THE ESP32 CODE ITS HAS
                  * THE LENGTH OF THE TOTAL BYTES PER PACKET (7) * THE MAXIMUM ARRAY LENGTH OF THE TWO MOTORS
                  */
-                
+
                 sw.Restart();
 
                 Serial_Init.sp.Write(combined_values_array, i, curr_packet_size);
@@ -238,9 +257,13 @@ namespace WinSerialCommunication
                 //Console.WriteLine($"Execution time: {executionTimeMs} ms, Remaining time: {remainingTimeMs} ms");
 
             }
-            byte[] stop_array = { 0x00, 0x00, 0x52, 0x00, 0x00, 0x4C, 0x3B};
+            byte[] stop_array = [0x00, 0x00, 0x4E, 0x00, 0x00, 0x4E, 0x3B];
             Serial_Init.sp.Write(stop_array, 0, 7);
             Console.WriteLine("Done");
+            Get_Current_Position();
+
+            //Serial_Init.sp.Close(); // close the serial port
+
         }
 
         /// <summary>
@@ -280,35 +303,83 @@ namespace WinSerialCommunication
         private static void ProcessData(ref SerialPort sp)
         {
             string incoming_data = dataBuffer.ToString(); // get the data from the buffer
-
-            string[] data_parts = incoming_data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string part in data_parts)
+            Console.WriteLine("Incoming data: " + incoming_data);
+            string[] parts = incoming_data.Split(" ", StringSplitOptions.RemoveEmptyEntries); // split the data into parts
+            if (parts[0].Equals("m1") || parts[0].Equals("e1"))
             {
-                string[] strings = part.Split(' ');
-                foreach (string str in strings)
-                {
-                    if (int.TryParse(str, out int result))
-                    {
-                        Console.WriteLine("Integer: " + result);
-                    }
-                    else
-                    {
-                        Console.WriteLine("String: " + str);
-                    }
+                Console.WriteLine("motor: " + parts[0]);
+                Console.WriteLine("position: " + parts[1]);
+                m1_curr_pos = Convert.ToInt32(parts[1]);
 
-                    if (str == "m1")
-                    {
-                        //current_position = result;
-                    }
-                    else if (str == "m2")
-                    {
-                        //current_position = result;
-                    }
+                error = Math.Abs(m1_steps) - m1_curr_pos;
+                Console.WriteLine("Error: " + error + " steps: " + m1_steps);
+
+                if (error > 0)
+                {
+                    error = Math.Abs(error);
+                    Console.WriteLine("Error after abs: " + error);
+                    sp.Write("e1 " + error + " R\n");
                 }
+                else if (error < 0)
+                {
+                    error = Math.Abs(error);
+                    Console.WriteLine("Error after abs: " + error);
+
+                    sp.Write("e1 " + error + " L\n");
+                }
+                else if (error == 0)
+                {
+                    Console.WriteLine("No error");
+                }
+
+            }
+            else if (parts[0].Equals("m2") || parts[0].Equals("e2"))
+            {
+                Console.WriteLine("motor: " + parts[0]);
+                Console.WriteLine("position: " + parts[1]);
+                m2_curr_pos = Convert.ToInt32(parts[1]);
+
+                error = Math.Abs(m2_steps) - m2_curr_pos;
+                Console.WriteLine("Error: " + error + " steps: " + m2_steps);
+
+                if (error > 0)
+                {
+                    error = Math.Abs(error);
+                    Console.WriteLine("Error after abs: " + error);
+                    sp.Write("e2 " + error + " R\n");
+                }
+                else if (error < 0)
+                {
+                    error = Math.Abs(error);
+                    Console.WriteLine("Error after abs: " + error);
+
+                    sp.Write("e2 " + error + " L\n");
+                }
+                else if (error == 0)
+                {
+                    Console.WriteLine("No error");
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Invalid data received: " + incoming_data);
             }
             // Clear the buffer after processing
             dataBuffer.Clear();
+        }
+
+        private void Get_Current_Position()
+        {
+            Serial_Init.serial_init();
+            //Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+
+            byte[] stop_array = [0x00, 0x00, 0x45, 0x00, 0x00, 0x45, 0x3B];
+            Serial_Init.sp.Write(stop_array, 0, 7);
+
+            Console.WriteLine("Getting current position");
+            Thread.Sleep(500);
+            Serial_Init.sp.Close();
         }
     }
 }

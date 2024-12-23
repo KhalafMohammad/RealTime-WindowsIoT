@@ -26,6 +26,10 @@ namespace WinSerialCommunication
         // Initialize the serial port
         //public static Serial_Init Serial_Init = new Serial_Init();
         public IntPtr aff_mask = (IntPtr)0xC0; // use only the first processor
+        private static int error;
+        private static int m1_steps;
+        private static int m2_steps;
+
 
         static void Main()
         {
@@ -38,51 +42,28 @@ namespace WinSerialCommunication
 
 
                 // USE THIS INSTEAD OF THE READ FUNCTION TO READ DATA FROM THE SERIAL PORT on Interrupt
-                //Serial_Init._serialport.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+                Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
                 // Initialize the serial port
 
 
-                var Read_Thread = new Thread(() =>
-                {
-                    RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0xc0);
 
-                    //Read.Data_to_read(ref Serial_Init._serialport); // read data from the serial port
-                });
-                //Read_Thread.Start();
-
-                var Write_Thread = new Thread(() =>
-                {
-                    RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0xc0);
-                    //Write.Data_to_write(ref Serial_Init._serialport); // write data to the serial port
-                });
-
-                //Write_Thread.Start();
-
-
-                //// initialize the robot
                 Robot newrobot = new();
-                newrobot.coordinates(4.375, 20);
-                newrobot.Run(); //ref Serial_Init._serialport
+                //// initialize the robot
 
+                //while (true)
+                //{
+                    newrobot.coordinates(13.60, 16); // 
+                    newrobot.Run(); //ref Serial_Init._serialport
 
+                    //Thread.Sleep(500);
 
+                    //newrobot.coordinates(-5, 16); // 
+                    //newrobot.Run(); //ref Serial_Init._serialport
+                    //Thread.Sleep(500);
+                //}
 
-                //TimeingTest timeingTest = new TimeingTest();
-                //RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0xc0);
-                //timeingTest.Send_Pulse(ref Serial_Init._serialport);
-
-                Thread thread = new Thread(() =>
-                {
-                    RealTime.manage_thread(Process.GetCurrentProcess(), ThreadPriorityLevel.TimeCritical, (IntPtr)0x40);
-
-                    //PacketList packetListener = new PacketList();
-                    //packetListener.Test()
-                });
-                //thread.Start();
-
-
-                //Serial_Init._serialport.Close(); // close the serial port
+                //Serial_Init.sp.Close(); // close the serial port
                 //Serial_Init._serialport.Dispose(); // dispose the serial port
                 Thread.Sleep(Timeout.Infinite);
 
@@ -120,7 +101,7 @@ namespace WinSerialCommunication
         {
             string incoming_data = dataBuffer.ToString(); // get the data from the buffer
 
-            string[] data_parts = incoming_data.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] data_parts = incoming_data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string part in data_parts)
             {
@@ -139,10 +120,15 @@ namespace WinSerialCommunication
                     if (str == "m1")
                     {
                         current_position = result;
+                        error = Math.Abs(m1_steps) - current_position;
+                        Console.WriteLine("Error: " + error + " steps: " + m1_steps);
+
                     }
                     else if (str == "m2")
                     {
                         current_position = result;
+                        error = Math.Abs(m2_steps) - current_position;
+                        Console.WriteLine("Error: " + error + " steps: " + m2_steps);
                     }
                 }
             }

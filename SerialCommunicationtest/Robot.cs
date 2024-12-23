@@ -1,4 +1,5 @@
-﻿using System.IO.Ports;
+﻿using System.Dynamic;
+using System.IO.Ports;
 
 namespace WinSerialCommunication
 {
@@ -19,10 +20,10 @@ namespace WinSerialCommunication
         public static double steps_per_angle = 5000.00f / 360.0f;
         public static bool recieve_flag = true;
         public static int value;
-        public static int position;
         public static double t1;
         public static double t2;
         public static double t3;
+        
 
         public Robot()
         {
@@ -31,6 +32,7 @@ namespace WinSerialCommunication
             ZTIMK_Bot = new TwoAxisRobot(L1, L2, D);
             ZTIMK_Bot.motor1_position = 90;
             ZTIMK_Bot.motor2_position = 90;
+           
         }
 
         /// <summary>
@@ -45,17 +47,21 @@ namespace WinSerialCommunication
             Console.WriteLine("###############################################");
             Console.WriteLine("kinematics calculation");
             Console.ForegroundColor = ConsoleColor.Green;
-            (Motor1_angle, Motor2_angle) = ZTIMK_Bot.CalculateInverseKinematics(x, y);
+            (Motor2_angle, Motor1_angle) = ZTIMK_Bot.CalculateInverseKinematics(x, y);
 
-            (double f_x, double f_y) = ZTIMK_Bot.get_xy(Motor1_angle, 180 - -ZTIMK_Bot.M); // forward kinematics
-            Console.WriteLine($" X_arm1 => {f_x:f3}, Y_arm1 => {f_y:f3}");
+            //Console.WriteLine("calculate the forward kinematics");
+            //Console.WriteLine("################################################");
+            //(double f_x, double f_y) = ZTIMK_Bot.get_xy(Motor2_angle, 180 - -ZTIMK_Bot.M); // forward kinematics
+            //Console.WriteLine($" X_arm1 => {f_x:f3}, Y_arm1 => {f_y:f3}");
 
-            (f_x, f_y) = ZTIMK_Bot.get_xy(Motor2_angle, 180 - ZTIMK_Bot.N);
-            Console.WriteLine($" X_arm2 =>{f_x + D:f3}, Y_arm2 => {f_y:f3}");
-            Console.WriteLine("###############################################");
+            //(f_x, f_y) = ZTIMK_Bot.get_xy(Motor1_angle, 180 - ZTIMK_Bot.N);
+            //Console.WriteLine($" X_arm2 =>{f_x + D:f3}, Y_arm2 => {f_y:f3}");
+            //Console.WriteLine("###############################################");
 
             Console.ResetColor();
         }
+
+
 
         public void Run()// ref SerialPort sp
         {
@@ -63,68 +69,67 @@ namespace WinSerialCommunication
             Console.WriteLine("###############################################");
             Console.WriteLine("Motors angles and movment calculations!!");
             //const double tool_offset = 3.300;
-            if (Motor1_angle > 190 || Motor1_angle < 90)
+            if (Motor2_angle > 190 || Motor2_angle < 90)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
 
                 throw new MotorAngleException("Motor 1 angle is out of domain");
             }
-            else if (Motor2_angle > 90 || Motor2_angle < -10)
+            else if (Motor1_angle > 90 || Motor1_angle < -10)
             {
                 throw new MotorAngleException("Motor 2 angle is out of domain");
             }
-            else if (Motor1_angle > 190 || Motor1_angle < 90 && Motor2_angle > 90 || Motor2_angle < -10)
+            else if (Motor2_angle > 190 || Motor2_angle < 90 && Motor1_angle > 90 || Motor1_angle < -10)
             {
                 throw new MotorAngleException("Motor 1 and Motor 2 angle is out of domain");
             }
             else
             {
                 Console.WriteLine("Motor 1 angle: " + Motor1_angle + " Motor 2 angle: " + Motor2_angle);
+
+                Console.ResetColor();
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("###############################################");
+                int Motor1_tomove_angle = Motor1_angle - ZTIMK_Bot.motor1_position; // calculate the angle to move for motor 1
+                int Motor2_tomove_angle = Motor2_angle - ZTIMK_Bot.motor2_position; // calculate the angle to move for motor 2
+
+                m1_position = Motor1_angle; // update the current position of the motor
+                m2_position = Motor2_angle; // update the current position of the motor
+
+                Console.WriteLine($"motor1 position To move = {Motor1_tomove_angle}\nmotor2 position To move = {Motor2_tomove_angle} ");
+
+
+
+                int m1_steps = Angle_to_steps(Motor1_tomove_angle); // convert the angle to steps
+                (double t1, double t2, double t3) = calculate_time(m1_steps); // calculate the time for the motor to move
+                Scurve motor1 = new Scurve(t1, t3, m1_steps); // create a new instance of the motor
+                (int[] motor1_values, char motor1_dir) = motor1.Get_curve_values(); // get the values and direction of the motor
+
+
+                int m2_steps = Angle_to_steps(Motor2_tomove_angle); // convert the angle to steps
+                (t1, t2, t3) = calculate_time(m2_steps); // calculate the time for the motor to move 
+                Scurve motor2 = new Scurve(t1, t3, m2_steps); // create a new instance of the motor
+                (int[] motor2_values, char motor2_dir) = motor2.Get_curve_values(); // get the values and direction of the motor
+
+
+                PacketList packetList = new PacketList();
+                packetList.Test(motor1_values, motor1_dir, motor2_values, motor2_dir);
+
+                ZTIMK_Bot.motor1_position = Motor1_angle; // update the current position of the motor
+                ZTIMK_Bot.motor2_position = Motor2_angle; // update the current position of the motor
+                Console.WriteLine($"motor1 after move = {ZTIMK_Bot.motor1_position}\nmotor2 after move = {ZTIMK_Bot.motor2_position}");
+
+                Console.WriteLine("###############################################");
+                motor1_values = null;
+                motor2_values = null;
+                motor1 = null;
+                motor2 = null;
             }
+            //ResetVariables();
+
             Console.ResetColor();
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("###############################################");
-            int Motor1_tomove_angle = ZTIMK_Bot.motor1_position - (Motor1_angle); // calculate the angle to move for motor 1
-            int Motor2_tomove_angle = ZTIMK_Bot.motor2_position - (Motor2_angle); // calculate the angle to move for motor 2
-
-            m1_position = Motor1_angle; // update the current position of the motor
-            m2_position = Motor2_angle; // update the current position of the motor
-
-            Console.WriteLine($"motor1 position To move = {Motor1_tomove_angle}\nmotor2 position To move = {Motor2_tomove_angle} ");
-            ZTIMK_Bot.motor1_position = Motor1_angle; // update the current position of the motor
-            ZTIMK_Bot.motor2_position = Motor2_angle; // update the current position of the motor
-            Console.WriteLine($"motor1 after move = {ZTIMK_Bot.motor1_position}\nmotor2 after move = {ZTIMK_Bot.motor2_position}");
-
-
-            int m1_steps = Angle_to_steps(Motor1_tomove_angle); // convert the angle to steps
-            (double t1, double t2, double t3) = calculate_time(m1_steps); // calculate the time for the motor to move
-            Scurve motor1 = new Scurve(t1, t3, m1_steps); // create a new instance of the motor
-            (int[] motor1_values, char motor1_dir) = motor1.Get_curve_values(); // get the values and direction of the motor
-
-
-            int m2_steps = Angle_to_steps(Motor2_tomove_angle); // convert the angle to steps
-            (t1, t2, t3) = calculate_time(m2_steps); // calculate the time for the motor to move 
-            Scurve motor2 = new Scurve(t1, t3, m2_steps); // create a new instance of the motor
-            (int[] motor2_values, char motor2_dir) = motor2.Get_curve_values(); // get the values and direction of the motor
-
-
-
-            PacketList packetList = new PacketList();
-            packetList.Test(motor1_values, motor1_dir, motor2_values, motor2_dir);
-
-
-            //(double t1, double t2, double t3) = Write.calculate_time(m1_steps);
-            //Scurve2 Motor1 = new Scurve2(t1, t3, m1_steps, m1_position, "m1 ");
-            //Motor1.Move(ref sp, m1_steps); //error in this line
-
-            //( t1,  t2,  t3) = Write.calculate_time(m2_steps);
-            //Scurve2 Motor2 = new Scurve2(t1, t3, m2_steps, m2_position, "m2 ");
-            //Motor2.Move(ref sp, m2_steps); //error in this line
-
-
-            Console.WriteLine("###############################################");
-            Console.ResetColor();
         }
 
         /// <summary>
@@ -222,6 +227,16 @@ namespace WinSerialCommunication
 
             Console.WriteLine(Math.Round(steps / steps_per_angle));
             return (int)(Math.Round(steps / steps_per_angle));
+        }
+        private void ResetVariables()
+        {
+            //m1_position = 0;
+            //m2_position = 0;
+            steps_per_angle = 5000.00f / 360.0f;
+            value = 0;
+            t1 = 0;
+            t2 = 0;
+            t3 = 0;
         }
     }
 

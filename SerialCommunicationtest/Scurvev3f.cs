@@ -22,7 +22,7 @@ namespace WinSerialCommunication
 
         public (int[] motor_values, char dir) Get_curve_values()
         {
-            double max = (double)(t_j * 3) * 1000 +1;
+            double max = (double)(t_j * 3) * 1000 +10;
             Console.WriteLine("Max: " + max);
             int itr = 0;
             int[] motor = new int[(int)max];
@@ -50,7 +50,7 @@ namespace WinSerialCommunication
             #endregion Phase 1
 
             #region Phase 2
-            for (double t = 0; t < j_max; t += dt)
+            for (double t = 0; t < j_max + error; t += dt)
             {
                 curr_freq = accelertion;
 

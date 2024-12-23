@@ -11,9 +11,9 @@ namespace WinSerialCommunication
 {
     internal class Serial_Init
     {
-        public SerialPort sp = new SerialPort("COM5", 115200, Parity.None, 8, StopBits.One);
+        public static SerialPort sp = new SerialPort("COM5", 115200, Parity.None, 8, StopBits.One);
 
-        public void serial_init()
+        public static void serial_init()
         {
             try
             {
