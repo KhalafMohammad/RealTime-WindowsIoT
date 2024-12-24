@@ -26,15 +26,21 @@ namespace WinSerialCommunication
         // Initialize the serial port
         //public static Serial_Init Serial_Init = new Serial_Init();
         public IntPtr aff_mask = (IntPtr)0xC0; // use only the first processor
-        private static int error;
-        private static int m1_steps;
-        private static int m2_steps;
+        private static int error1;
+        private static int error2;
+        public static int m1_steps;
+        public static int m2_steps;
+        public static int m1_curr_pos;
+        public static int m2_curr_pos;
+        public static bool error_flag = false;
 
 
         static void Main()
         {
             try
             {
+                Serial_Init.serial_init();
+
                 Console.Title = "Robot: ZTIMK-bot prototype";
                 // Set the process priority to high and the thread priority to time critical
                 RealTime.Process_managment(Process.GetCurrentProcess(), 0xc0, ProcessPriorityClass.RealTime);
@@ -51,17 +57,17 @@ namespace WinSerialCommunication
                 Robot newrobot = new();
                 //// initialize the robot
 
-                //while (true)
-                //{
-                    newrobot.coordinates(13.60, 16); // 
+                while (true)
+                {
+                    newrobot.coordinates(13.60, 16); //  13.60, 16
                     newrobot.Run(); //ref Serial_Init._serialport
+                    Thread.Sleep(500);
 
-                    //Thread.Sleep(500);
+                    newrobot.coordinates(-5, 16); //  -5 , 16
+                    newrobot.Run(); //ref Serial_Init._serialport
+                    Thread.Sleep(500);
+                }
 
-                    //newrobot.coordinates(-5, 16); // 
-                    //newrobot.Run(); //ref Serial_Init._serialport
-                    //Thread.Sleep(500);
-                //}
 
                 //Serial_Init.sp.Close(); // close the serial port
                 //Serial_Init._serialport.Dispose(); // dispose the serial port
@@ -102,38 +108,63 @@ namespace WinSerialCommunication
             string incoming_data = dataBuffer.ToString(); // get the data from the buffer
 
             string[] data_parts = incoming_data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string part in data_parts)
+            //Console.WriteLine("Incoming data: " + data_parts[0] + data_parts[1] + data_parts[2] + data_parts[3]);
+            if (data_parts[0] == "m1" && data_parts[2] == "m2")
             {
-                string[] strings = part.Split(' ');
-                foreach (string str in strings)
+                Console.WriteLine($"{data_parts[0]} pos: {data_parts[1]}");
+                m1_curr_pos = int.Parse(data_parts[1]);
+                error1 = m1_steps - m1_curr_pos;
+
+                Console.WriteLine("motor1 Error: " + error1 + " steps: " + m1_steps);
+
+
+                Console.WriteLine($"{data_parts[2]} pos: {data_parts[3]}");
+                m2_curr_pos = int.Parse(data_parts[3]);
+                error2 = m2_steps - m2_curr_pos;
+                Console.WriteLine("motor2 Error: " + error2 + " steps: " + m2_steps);
+
+                if (error1 == 0 && error2 == 0)
                 {
-                    if (int.TryParse(str, out int result))
-                    {
-                        Console.WriteLine("Integer: " + result);
-                    }
-                    else
-                    {
-                        Console.WriteLine("String: " + str);
-                    }
-
-                    if (str == "m1")
-                    {
-                        current_position = result;
-                        error = Math.Abs(m1_steps) - current_position;
-                        Console.WriteLine("Error: " + error + " steps: " + m1_steps);
-
-                    }
-                    else if (str == "m2")
-                    {
-                        current_position = result;
-                        error = Math.Abs(m2_steps) - current_position;
-                        Console.WriteLine("Error: " + error + " steps: " + m2_steps);
-                    }
+                    Console.WriteLine("Done");
+                    error_flag = true;
+                    m1_steps = 0;
+                    m2_steps = 0;
+                    m1_curr_pos = 0;
+                    m2_curr_pos = 0;
+                    return;
+                }
+                else
+                {
+                    error_flag = false;
+                    // Send the error to the robot
+                    char m1_dir = error1 > 0 ? 'R' : 'L';
+                    char m2_dir = error2 > 0 ? 'R' : 'L';
+                    error2 = Math.Abs(error2);
+                    error1 = Math.Abs(error1);
+                    // Send the stop command to the robot
+                    byte[] stop_array = PacketList.combine_stop_error((ushort)error1, m1_dir, (ushort)error2, m2_dir);
+                    Serial_Init.sp.Write(stop_array, 0, 7);
+                    Console.WriteLine("error command sent");
+                    stop_array = null;
+                    error1 = 0;
+                    error2 = 0;
+                    m1_dir = ' ';
+                    m2_dir = ' ';
+                    //m1_steps = 0;
+                    //m2_steps = 0;
+                    m1_curr_pos = 0;
+                    m2_curr_pos = 0;
                 }
             }
+            else
+            {
+                Console.WriteLine("positie na error: " + incoming_data);
+            }
+
             // Clear the buffer after processing
             dataBuffer.Clear();
         }
+
+
     }
 }

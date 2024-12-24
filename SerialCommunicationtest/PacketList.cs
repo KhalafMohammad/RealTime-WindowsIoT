@@ -51,6 +51,9 @@ namespace WinSerialCommunication
             m1_steps = (int)(motor1_len / 1000 * 2000);
             m2_steps = (int)(motor2_len / 1000 * 2000);
 
+            Program.m1_steps = m1_steps;
+            Program.m2_steps = m2_steps;
+
             Console.WriteLine("Motor 1 steps: " + m1_steps);
             Console.WriteLine("Motor 2 steps: " + m2_steps);
 
@@ -62,13 +65,13 @@ namespace WinSerialCommunication
 
                 Transmit(combined_values_array);
             });
-            //thread.Start();
-            //thread.Join();
-            //Get_Current_Position();
+            thread.Start();
+            thread.Join();
+            Get_Current_Position();
 
             //byte[] stop_array = { 0x00, 0x00, 0x4E, 0x00, 0x00, 0x4E, 0x3B };
             //Serial_Init.sp.Write(stop_array, 0, 7);
-            Print_values(combined_values_array, "D");
+            //Print_values(combined_values_array, "D");
 
 
             //Serial_Init.sp.Dispose(); // dispose the serial port
@@ -232,8 +235,7 @@ namespace WinSerialCommunication
         /// </summary>
         private void Transmit(byte[] combined_values_array)
         {
-            Serial_Init.serial_init(); // initialize the serial port
-            //Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
+            //Serial_Init.serial_init(); // initialize the serial port
 
             Stopwatch sw = new Stopwatch();
             // send every 7 bytes
@@ -260,7 +262,6 @@ namespace WinSerialCommunication
             byte[] stop_array = [0x00, 0x00, 0x4E, 0x00, 0x00, 0x4E, 0x3B];
             Serial_Init.sp.Write(stop_array, 0, 7);
             Console.WriteLine("Done");
-            Get_Current_Position();
 
             //Serial_Init.sp.Close(); // close the serial port
 
@@ -277,109 +278,42 @@ namespace WinSerialCommunication
             return Math.Max(array1.Length, array2.Length);
         }
 
-        private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-        {
-            try
-            {
-
-                SerialPort sp = (SerialPort)sender;
-                byte[] buffer = new byte[sp.BytesToRead]; // create a buffer to store the data
-                sp.Read(buffer, 0, buffer.Length); // read the data from the serial port
-                if (buffer.Length > 0) // check if the buffer has data
-                {
-
-                    dataBuffer.Append(Encoding.UTF8.GetString(buffer));
-                    // Process de data in de buffer
-                    ProcessData(ref sp);
-                }
-                //buffer = null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        private static void ProcessData(ref SerialPort sp)
-        {
-            string incoming_data = dataBuffer.ToString(); // get the data from the buffer
-            Console.WriteLine("Incoming data: " + incoming_data);
-            string[] parts = incoming_data.Split(" ", StringSplitOptions.RemoveEmptyEntries); // split the data into parts
-            if (parts[0].Equals("m1") || parts[0].Equals("e1"))
-            {
-                Console.WriteLine("motor: " + parts[0]);
-                Console.WriteLine("position: " + parts[1]);
-                m1_curr_pos = Convert.ToInt32(parts[1]);
-
-                error = Math.Abs(m1_steps) - m1_curr_pos;
-                Console.WriteLine("Error: " + error + " steps: " + m1_steps);
-
-                if (error > 0)
-                {
-                    error = Math.Abs(error);
-                    Console.WriteLine("Error after abs: " + error);
-                    sp.Write("e1 " + error + " R\n");
-                }
-                else if (error < 0)
-                {
-                    error = Math.Abs(error);
-                    Console.WriteLine("Error after abs: " + error);
-
-                    sp.Write("e1 " + error + " L\n");
-                }
-                else if (error == 0)
-                {
-                    Console.WriteLine("No error");
-                }
-
-            }
-            else if (parts[0].Equals("m2") || parts[0].Equals("e2"))
-            {
-                Console.WriteLine("motor: " + parts[0]);
-                Console.WriteLine("position: " + parts[1]);
-                m2_curr_pos = Convert.ToInt32(parts[1]);
-
-                error = Math.Abs(m2_steps) - m2_curr_pos;
-                Console.WriteLine("Error: " + error + " steps: " + m2_steps);
-
-                if (error > 0)
-                {
-                    error = Math.Abs(error);
-                    Console.WriteLine("Error after abs: " + error);
-                    sp.Write("e2 " + error + " R\n");
-                }
-                else if (error < 0)
-                {
-                    error = Math.Abs(error);
-                    Console.WriteLine("Error after abs: " + error);
-
-                    sp.Write("e2 " + error + " L\n");
-                }
-                else if (error == 0)
-                {
-                    Console.WriteLine("No error");
-                }
-
-            }
-            else
-            {
-                Console.WriteLine("Invalid data received: " + incoming_data);
-            }
-            // Clear the buffer after processing
-            dataBuffer.Clear();
-        }
-
         private void Get_Current_Position()
         {
-            Serial_Init.serial_init();
-            //Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
-
             byte[] stop_array = [0x00, 0x00, 0x45, 0x00, 0x00, 0x45, 0x3B];
             Serial_Init.sp.Write(stop_array, 0, 7);
 
             Console.WriteLine("Getting current position");
-            Thread.Sleep(500);
-            Serial_Init.sp.Close();
+            //Serial_Init.sp.Close();
+        }
+
+        public static byte[] combine_stop_error(ushort error1, char error1_dir, ushort error2, char error2_dir)
+        {
+            char error_char = '@';
+
+            byte[] error1_bytes =  new byte[2];
+
+            error1_bytes[0] = (byte)((int)error1 >> 8); // shift 8 bits to the right
+            error1_bytes[1] = (byte)((int)error1 & 0xFF); // bitwise AND with 0xFF
+
+
+            byte[] error2_bytes = new byte[2];
+            error2_bytes[0] = (byte)((int)error2 >> 8); // shift 8 bits to the right
+            error2_bytes[1] = (byte)((int)error2 & 0xFF); // bitwise AND with 0xFF
+
+
+            List<byte> combined_error = [];
+            combined_error.AddRange(error1_bytes);
+            combined_error.Add((byte)error1_dir);
+
+            combined_error.AddRange(error2_bytes);
+            combined_error.Add((byte)error2_dir);
+
+            combined_error.Add((byte)error_char);
+
+            byte[] combined_error_bytes = combined_error.ToArray();
+
+            return combined_error_bytes;
         }
     }
 }
