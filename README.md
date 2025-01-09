@@ -1,9 +1,9 @@
-# WinSerialCommunication
+# RealTime-WindowsIoT
 
 ## Overview
 
-WinSerialCommunication is a C# project designed to control a two-axis robotic arm via serial communication. The project includes functionalities for calculating kinematics, generating S-curve motion profiles, managing real-time process priorities, and transmitting control packets to the robot's motors. It is built using .NET 8 and C# 12.0.
-
+RealTime-WindowsIoTis a C# project designed to control a two-axis robotic arm via serial communication. The project includes functionalities for calculating kinematics, generating S-curve motion profiles, managing real-time process priorities, and transmitting control packets to the robot's motors. It is built using .NET 8 and C# 12.0.
+youtube link video [Robot running in REALTIME on Windows]()
 ## Features
 
 - **Inverse and Forward Kinematics**: Calculate motor angles for given coordinates and compute coordinates from motor angles.
@@ -63,18 +63,18 @@ git clone https://github.com/yourusername/WinSerialCommunication.git
 
    Robot robot = new Robot();
 3. **Set Coordinates and Run**
-	robot.coordinates(13.60, 16); // Set target coordinates
-	robot.Run(); // Calculate and execute motor movements
+	```robot.coordinates(13.60, 16); // Set target coordinates
+	robot.Run(); // Calculate and execute motor movements```
 
 
 4. **Error Handling**
 
    The application includes error handling for motor angles out of range and positional errors.
-	try {
+	```try {
 		robot.coordinates(x, y);
 		robot.Run(); 
 	    } catch (MotorAngleException ex)
-            { Console.WriteLine(ex.Message); }
+            { Console.WriteLine(ex.Message); }```
 
 ## Project Structure
 
@@ -195,13 +195,6 @@ git clone https://github.com/yourusername/WinSerialCommunication.git
   - `server(double kine_data)`: Starts a UDP server listening for incoming messages.
   - `client(string message)`: Sends messages to a UDP server.
 
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ## Acknowledgments
 
