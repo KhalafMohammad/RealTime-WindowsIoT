@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WinSerialCommunication")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+779a5d17f106c2afc66b769095de42d4b5189bfe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7d150801b383a36530c762fcb92d11e4c0396810")]
 [assembly: System.Reflection.AssemblyProductAttribute("WinSerialCommunication")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WinSerialCommunication")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -57,16 +57,16 @@ namespace WinSerialCommunication
                 Robot newrobot = new();
                 //// initialize the robot
 
-                //while (true)
-                //{
+                while (true)
+                {
                     newrobot.coordinates(13.60, 16); //  13.60, 16
                     newrobot.Run(); //ref Serial_Init._serialport
-                    //Thread.Sleep(500);
+                    Thread.Sleep(500);
 
-                    //newrobot.coordinates(-5, 16); //  -5 , 16
-                    //newrobot.Run(); //ref Serial_Init._serialport
-                    //Thread.Sleep(500);
-                //}
+                    newrobot.coordinates(-5, 16); //  -5 , 16
+                    newrobot.Run(); //ref Serial_Init._serialport
+                    Thread.Sleep(500);
+                }
 
 
                 //Serial_Init.sp.Close(); // close the serial port

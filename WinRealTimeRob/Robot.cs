@@ -115,7 +115,7 @@ namespace WinSerialCommunication
                 Console.WriteLine("Motor 1 steps: " + m1_steps);
                 Console.WriteLine("Motor 2 steps: " + m2_steps);
                 Program.m1_steps = Math.Abs(m1_steps);
-                Program.m2_steps = m2_steps;
+                Program.m2_steps = Math.Abs(m2_steps);
                 PacketList packetList = new PacketList();
                 packetList.Test(motor1_values, motor1_dir, motor2_values, motor2_dir);
                 

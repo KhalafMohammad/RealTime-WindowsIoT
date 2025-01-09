@@ -45,17 +45,6 @@ namespace WinSerialCommunication
 
             //Serial_Init.sp.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
 
-            //double motor1_len = motor1_values.Length;
-            //double motor2_len = motor2_values.Length;
-
-            //m1_steps = (int)(motor1_len / 1000 * 2000);
-            //m2_steps = (int)(motor2_len / 1000 * 2000);
-
-            //Program.m1_steps = m1_steps;
-            //Program.m2_steps = m2_steps;
-
-            //Console.WriteLine("Motor 1 steps: " + m1_steps);
-            //Console.WriteLine("Motor 2 steps: " + m2_steps);
 
             combined_values_array = Combine_values(motor1_values, motor1_dir, motor2_values, motor2_dir).ToArray();
 
