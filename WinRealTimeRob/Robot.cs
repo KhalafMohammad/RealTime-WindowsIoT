@@ -112,10 +112,13 @@ namespace WinSerialCommunication
                 Scurve motor2 = new Scurve(t1, t3, m2_steps); // create a new instance of the motor
                 (int[] motor2_values, char motor2_dir) = motor2.Get_curve_values(); // get the values and direction of the motor
 
-
+                Console.WriteLine("Motor 1 steps: " + m1_steps);
+                Console.WriteLine("Motor 2 steps: " + m2_steps);
+                Program.m1_steps = Math.Abs(m1_steps);
+                Program.m2_steps = m2_steps;
                 PacketList packetList = new PacketList();
                 packetList.Test(motor1_values, motor1_dir, motor2_values, motor2_dir);
-
+                
                 ZTIMK_Bot.motor1_position = Motor1_angle; // update the current position of the motor
                 ZTIMK_Bot.motor2_position = Motor2_angle; // update the current position of the motor
                 Console.WriteLine($"motor1 after move = {ZTIMK_Bot.motor1_position}\nmotor2 after move = {ZTIMK_Bot.motor2_position}");
