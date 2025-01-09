@@ -3,7 +3,7 @@
 ## Overview
 
 RealTime-WindowsIoTis a C# project designed to control a two-axis robotic arm via serial communication. The project includes functionalities for calculating kinematics, generating S-curve motion profiles, managing real-time process priorities, and transmitting control packets to the robot's motors. It is built using .NET 8 and C# 12.0.
-youtube link video [Robot running in REALTIME on Windows](youtube.com/shorts/OShL6DuvjyI)
+youtube link video [Robot running in REALTIME on Windows](http://www.youtube.com/shorts/OShL6DuvjyI)
 ## Features
 
 - **Inverse and Forward Kinematics**: Calculate motor angles for given coordinates and compute coordinates from motor angles.
